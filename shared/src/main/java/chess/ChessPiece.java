@@ -53,11 +53,32 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
 
-//    public ArrayList<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
-//        ArrayList<ChessMove> pMoves = new ArrayList<>();
-//        //handle pawns moving one forward
-//        if()
-//    }
+    public ArrayList<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
+        ArrayList<ChessMove> pMoves = new ArrayList<>();
+        int direction = board.getPiece(myPosition).getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
+        int initialRow = board.getPiece(myPosition).getTeamColor() == ChessGame.TeamColor.WHITE ? 2 : 7;
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        //handle pawns moving one and two forward
+        ChessPosition oneForward = new ChessPosition(row+1*direction, col);
+        if(board.getPiece(oneForward) == null) {
+            pMoves.add(new ChessMove(myPosition,oneForward,null));
+            ChessPosition twoForward = new ChessPosition(row+2*direction,col);
+            if(board.getPiece(twoForward) == null && myPosition.getRow() == initialRow) {
+                pMoves.add(new ChessMove(myPosition,twoForward,null));
+            }
+        }
+        //handle diagonally taking another piece
+        ChessPosition leftDiagPos = new ChessPosition(row+1*direction, col-1);
+        if(board.getPiece(leftDiagPos) != null && board.getPiece(leftDiagPos).getTeamColor() != this.getTeamColor()) {
+            pMoves.add(new ChessMove(myPosition,leftDiagPos,null));
+        }
+        ChessPosition rightDiagPos = new ChessPosition(row+1*direction, col+1);
+        if(board.getPiece(rightDiagPos) != null && board.getPiece(rightDiagPos).getTeamColor() != this.getTeamColor()) {
+            pMoves.add(new ChessMove(myPosition,rightDiagPos,null));
+        }
+        return pMoves;
+    }
 //
 //    public ArrayList<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
 //
@@ -111,7 +132,7 @@ public class ChessPiece {
 
         switch (type) {
             case PAWN:
-//                moves = pawnMoves(board, myPosition);
+                moves = pawnMoves(board, myPosition);
                 break;
             case ROOK:
 //                moves = rookMoves(board, myPosition);
