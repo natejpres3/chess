@@ -115,10 +115,7 @@ public class ChessPiece {
         ArrayList<ChessMove> bMoves = new ArrayList<>();
 
         int pieceDirections[][] = {
-                {1,1},
-                {-1,1},
-                {-1,-1},
-                {1,-1}
+                {1,1}, {-1,1}, {-1,-1}, {1,-1}
         };
 
         for(int [] direction : pieceDirections) {
@@ -142,10 +139,33 @@ public class ChessPiece {
         return bMoves;
     }
 
-//    public ArrayList<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
-//
-//    }
-//
+    public ArrayList<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
+        ArrayList<ChessMove> qMoves = new ArrayList<>();
+        int pieceDirections[][] = {
+                {1,0}, {1,1}, {0,1}, {-1,1},
+                {-1,0}, {-1,-1}, {0,-1}, {1,-1},
+        };
+        for(int [] direction : pieceDirections) {
+            int xShift = direction[0];
+            int yShift = direction[1];
+            ChessPosition startPosition = myPosition;
+            while(board.isWithinBoard(startPosition)) {
+                ChessPosition newPosition = startPosition.movePos(xShift,yShift);
+                if(!board.isWithinBoard(newPosition)) {break;}
+                if(board.getPiece(newPosition) == null) {
+                    qMoves.add(new ChessMove(myPosition,newPosition,null));
+                } else if(board.getPiece(newPosition).pieceColor != this.pieceColor) {
+                    qMoves.add(new ChessMove(myPosition,newPosition,null));
+                    break;
+                } else {
+                    break;
+                }
+                startPosition = newPosition;
+            }
+        }
+        return qMoves;
+    }
+
     public ArrayList<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> kMoves = new ArrayList<>();
         int pieceDirections[][] = {
@@ -185,7 +205,7 @@ public class ChessPiece {
                 moves = bishopMoves(board, myPosition);
                 break;
             case QUEEN:
-//                moves = queenMoves(board, myPosition);
+                moves = queenMoves(board, myPosition);
                 break;
             case KING:
                 moves = kingMoves(board, myPosition);
