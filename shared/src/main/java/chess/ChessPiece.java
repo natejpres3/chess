@@ -122,9 +122,26 @@ public class ChessPiece {
 //
 //    }
 //
-//    public ArrayList<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
-//
-//    }
+    public ArrayList<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
+        ArrayList<ChessMove> kMoves = new ArrayList<>();
+        int pieceDirections[][] = {
+                {1,0}, {1,1}, {0,1}, {-1,1},
+                {-1,0}, {-1,-1}, {0,-1}, {1,-1},
+        };
+        for(int [] direction : pieceDirections) {
+            int xShift = direction[0];
+            int yShift = direction[1];
+            ChessPosition newPosition = myPosition.movePos(xShift,yShift);
+            if(board.isWithinBoard(newPosition)) {
+                if(board.getPiece(newPosition) == null) {
+                    kMoves.add(new ChessMove(myPosition,newPosition,null));
+                } else if(board.isEnemy(board,myPosition,newPosition)) {
+                    kMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+        }
+        return kMoves;
+    }
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>();
@@ -147,7 +164,7 @@ public class ChessPiece {
 //                moves = queenMoves(board, myPosition);
                 break;
             case KING:
-//                moves = kingMoves(board, myPosition);
+                moves = kingMoves(board, myPosition);
                 break;
         }
         return moves;

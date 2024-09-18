@@ -48,4 +48,8 @@ public class ChessBoard {
             return false;
         }
     }
+
+    public boolean isEnemy(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition) {
+        return board.getPiece(myPosition).getTeamColor() != board.getPiece(newPosition).getTeamColor();
+    }
 }
