@@ -106,10 +106,25 @@ public class ChessPiece {
         }
         return rMoves;
     }
-//
-//    public ArrayList<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
-//
-//    }
+
+    public ArrayList<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
+        ArrayList<ChessMove> knMoves = new ArrayList<>();
+        int pieceDirections[][] = {
+                {2,-1},{2,1},{1,2},{-1,2},
+                {-2,1},{-2,-1},{-1,-2},{1,-2}
+        };
+        for(int [] direction : pieceDirections) {
+            int xShift = direction[0];
+            int yShift = direction[1];
+            ChessPosition newPosition = myPosition.movePos(xShift,yShift);
+            if(board.isWithinBoard(newPosition)) {
+                if(board.getPiece(newPosition) == null || board.isEnemy(board,myPosition,newPosition)) {
+                    knMoves.add(new ChessMove(myPosition,newPosition,null));
+                }
+            }
+        }
+        return knMoves;
+    }
 
     public ArrayList<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> bMoves = new ArrayList<>();
@@ -199,7 +214,7 @@ public class ChessPiece {
                 moves = rookMoves(board, myPosition);
                 break;
             case KNIGHT:
-//                moves = knightMoves(board, myPosition);
+                moves = knightMoves(board, myPosition);
                 break;
             case BISHOP:
                 moves = bishopMoves(board, myPosition);
