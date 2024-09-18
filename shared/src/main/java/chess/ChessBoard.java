@@ -42,7 +42,7 @@ public class ChessBoard {
     }
 
     public boolean isWithinBoard(ChessPosition position) {
-        if(position.getRow() < 8 && position.getRow() > 1 && position.getColumn() < 8 && position.getColumn() > 1) {
+        if(position.getRow() <= 8 && position.getRow() >= 1 && position.getColumn() <= 8 && position.getColumn() >= 1) {
             return true;
         } else {
             return false;

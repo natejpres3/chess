@@ -79,10 +79,33 @@ public class ChessPiece {
         }
         return pMoves;
     }
-//
-//    public ArrayList<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
-//
-//    }
+
+    public ArrayList<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
+        ArrayList<ChessMove> rMoves = new ArrayList<>();
+        int pieceDirections[][] = {
+                {1,0}, {0,1}, {-1,0}, {0,-1}
+        };
+
+        for(int [] direction : pieceDirections) {
+            int xShift = direction[0];
+            int yShift = direction[1];
+            ChessPosition startPosition = myPosition;
+            while(board.isWithinBoard(startPosition)) {
+                ChessPosition newPosition = startPosition.movePos(xShift,yShift);
+                if(!board.isWithinBoard(newPosition)) {break;}
+                if(board.getPiece(newPosition) == null) {
+                    rMoves.add(new ChessMove(myPosition,newPosition,null));
+                } else if(board.isEnemy(board,myPosition,newPosition)) {
+                    rMoves.add(new ChessMove(myPosition,newPosition,null));
+                    break;
+                } else {
+                    break;
+                }
+                startPosition = newPosition;
+            }
+        }
+        return rMoves;
+    }
 //
 //    public ArrayList<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
 //
@@ -104,6 +127,7 @@ public class ChessPiece {
             ChessPosition startPosition = myPosition;
             while(board.isWithinBoard(startPosition)) {
                 ChessPosition newPosition = startPosition.movePos(xShift,yShift);
+                if(!board.isWithinBoard(newPosition)) {break;}
                 if(board.getPiece(newPosition) == null) {
                     bMoves.add(new ChessMove(myPosition,newPosition,null));
                 } else if(board.getPiece(newPosition).pieceColor != this.pieceColor) {
@@ -152,7 +176,7 @@ public class ChessPiece {
                 moves = pawnMoves(board, myPosition);
                 break;
             case ROOK:
-//                moves = rookMoves(board, myPosition);
+                moves = rookMoves(board, myPosition);
                 break;
             case KNIGHT:
 //                moves = knightMoves(board, myPosition);
