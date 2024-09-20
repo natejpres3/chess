@@ -101,14 +101,14 @@ public class ChessPiece {
         // account for attacking left and right with or without promotions
         ChessPosition attackLeft = myPosition.movePos(1*direction,-1*direction);
         ChessPosition attackRight = myPosition.movePos(1*direction,1*direction);
-        if(board.getPiece(attackLeft) != null && board.isEnemy(board,myPosition,attackLeft)) {
+        if(board.isWithinBoard(attackLeft) && board.getPiece(attackLeft) != null && board.isEnemy(board,myPosition,attackLeft)) {
             if(isPromotionRow(myPosition)) {
                 pMoves = doPromotions(pMoves,myPosition,attackLeft);
             } else {
                 pMoves.add(new ChessMove(myPosition,attackLeft,null));
             }
         }
-        if(board.getPiece(attackRight) != null && board.isEnemy(board,myPosition,attackRight)) {
+        if(board.isWithinBoard(attackRight) && board.getPiece(attackRight) != null && board.isEnemy(board,myPosition,attackRight)) {
             if(isPromotionRow(myPosition)) {
                 pMoves = doPromotions(pMoves,myPosition,attackRight);
             } else {
@@ -180,7 +180,7 @@ public class ChessPiece {
                 if(!board.isWithinBoard(newPosition)) {break;}
                 if(board.getPiece(newPosition) == null) {
                     bMoves.add(new ChessMove(myPosition,newPosition,null));
-                } else if(board.getPiece(newPosition).pieceColor != this.pieceColor) {
+                } else if(board.isEnemy(board,myPosition,newPosition)) {
                     bMoves.add(new ChessMove(myPosition,newPosition,null));
                     break;
                 } else {
@@ -207,7 +207,7 @@ public class ChessPiece {
                 if(!board.isWithinBoard(newPosition)) {break;}
                 if(board.getPiece(newPosition) == null) {
                     qMoves.add(new ChessMove(myPosition,newPosition,null));
-                } else if(board.getPiece(newPosition).pieceColor != this.pieceColor) {
+                } else if(board.isEnemy(board,myPosition,newPosition)) {
                     qMoves.add(new ChessMove(myPosition,newPosition,null));
                     break;
                 } else {
@@ -243,7 +243,6 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>();
         PieceType type = board.getPiece(myPosition).getPieceType();
-
         switch (type) {
             case PAWN:
                 moves = pawnMoves(board, myPosition);
