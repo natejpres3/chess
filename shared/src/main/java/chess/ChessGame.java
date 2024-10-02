@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -9,16 +11,23 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    private ChessBoard board;
+    boolean isWhitesTurn;
 
     public ChessGame() {
-
+        board = new ChessBoard();
+        this.isWhitesTurn = true;
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        if(isWhitesTurn) {
+            return TeamColor.WHITE;
+        } else {
+            return TeamColor.BLACK;
+        }
     }
 
     /**
@@ -27,7 +36,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        isWhitesTurn = !isWhitesTurn;
     }
 
     /**
@@ -106,5 +115,64 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         throw new RuntimeException("Not implemented");
+    }
+
+    // opponent piece function to get all of the opponent pieces to use for under attack function
+    public ArrayList<ChessPiece> getOpponentPieces(ChessBoard board, boolean isWhitesTurn) {
+        ArrayList<ChessPiece> opponentPieces = new ArrayList<>();
+        TeamColor opponentColor = isWhitesTurn ? TeamColor.BLACK : TeamColor.WHITE;
+        for(int i=0; i<8; i++) {
+            for(int j=0; j<8; j++) {
+                ChessPosition position = new ChessPosition(i,j);
+                if(board.getPiece(position) != null && board.getPiece(position).getTeamColor() != opponentColor) {
+                    opponentPieces.add(new ChessPiece(opponentColor,board.getPiece(position).getPieceType()));
+                }
+            }
+        }
+        return opponentPieces;
+    }
+
+    ArrayList<ChessPosition> getEndAttackPosition(Collection<ChessMove> attackMoves) {
+        ArrayList<ChessPosition> endPositions = new ArrayList<>();
+        for(var move : attackMoves) {
+            endPositions.add(move.getEndPosition());
+        }
+        return endPositions;
+    }
+
+    //generate an isUnderAttack function for checking if the king is in checkmate
+    public boolean isUnderAttack(ChessPosition myPosition, boolean isWhitesTurn) {
+        ArrayList<ChessPiece> opponentPieces = getOpponentPieces(board, isWhitesTurn);
+        //iterate over each opponent piece producing its potential moves and seeing if those include myPosition
+        for(var piece : opponentPieces) {
+            Collection<ChessMove> attackMoves = piece.pieceMoves(board, myPosition);
+            ArrayList<ChessPosition> attackEndPosition = getEndAttackPosition(attackMoves);
+            //check if myPosition is in that opponent pieces attack range
+            if(attackEndPosition.contains(myPosition)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessGame{" +
+                "board=" + board +
+                ", isWhitesTurn=" + isWhitesTurn +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessGame chessGame = (ChessGame) o;
+        return isWhitesTurn == chessGame.isWhitesTurn && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, isWhitesTurn);
     }
 }
