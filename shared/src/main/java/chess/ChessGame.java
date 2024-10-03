@@ -55,7 +55,10 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+//        //generate the piece moves for the piece at that position
+//        ChessPiece piece = board.getPiece(startPosition);
+//        Collection<ChessMove> pieceMoves = piece.pieceMoves(board,startPosition);
+
     }
 
     /**
@@ -84,8 +87,24 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
+
+    //helper function to find the king position so we can check for checkmate and stalemate
+    public ChessPosition findKing(ChessBoard board, TeamColor teamColor) {
+        for(int i=0; i<8; i++) {
+            for(int j=0; j<8; j++) {
+                ChessPosition position = new ChessPosition(i,j);
+                ChessPiece piece = board.getPiece(position);
+                if(piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                    return position;
+                }
+            }
+        }
+        return null;
+    }
+
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = findKing(board, teamColor);
+        return isUnderAttack(kingPosition,isWhitesTurn);
     }
 
     /**
