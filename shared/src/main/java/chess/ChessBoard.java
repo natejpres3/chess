@@ -1,5 +1,7 @@
 package chess;
 
+import org.junit.platform.commons.util.AnnotationUtils;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -23,6 +25,34 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         squares[position.getRow()-1][position.getColumn()-1] = piece;
+    }
+
+    // remove piece for making a move
+    public void removePiece(ChessPosition position) {
+        squares[position.getRow()-1][position.getColumn()-1] = null;
+    }
+
+    //method for deep copying the board to test moves on
+    public ChessBoard copy() {
+        ChessBoard copiedBoard = new ChessBoard();
+        for(int i=0; i<8; i++) {
+            for(int j=0; j<9; j++) {
+                ChessPiece piece = squares[i][j];
+                if(piece != null) {
+                    copiedBoard.addPiece(new ChessPosition(i,j),piece);
+                } else {
+                    copiedBoard.addPiece(new ChessPosition(i,j), null);
+                }
+            }
+        }
+        return copiedBoard;
+    }
+
+    public void testMove(ChessPiece piece, ChessMove move) {
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        addPiece(endPosition,piece);
+        removePiece(startPosition);
     }
 
     /**

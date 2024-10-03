@@ -54,11 +54,30 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
-    public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-//        //generate the piece moves for the piece at that position
-//        ChessPiece piece = board.getPiece(startPosition);
-//        Collection<ChessMove> pieceMoves = piece.pieceMoves(board,startPosition);
 
+    public Collection<ChessMove> filterIllegals(ChessBoard board, Collection<ChessMove> possibleMoves) {
+        Collection<ChessMove> legalMoves = new ArrayList<>();
+        // for each move, see if it results in a check on the king
+        for(var move : possibleMoves) {
+            ChessBoard tempBoard = board.copy();
+            ChessPiece piece = board.getPiece(move.getStartPosition());
+            if(piece == null) {break;}
+            
+        }
+        return legalMoves;
+    }
+
+    public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        ChessPiece piece = board.getPiece(startPosition);
+        //if there is no piece there
+        if(piece == null) {
+            return null;
+        }
+        if((isWhitesTurn && piece.getTeamColor() == TeamColor.WHITE) || (!isWhitesTurn && piece.getTeamColor() == TeamColor.BLACK)) {
+            Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
+            return filterIllegals(board,pieceMoves);
+        }
+        return null;
     }
 
     /**
