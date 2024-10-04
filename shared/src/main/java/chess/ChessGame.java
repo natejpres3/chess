@@ -130,7 +130,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = findKing(board, teamColor);
+        return isUnderAttack(board, kingPosition,teamColor);
     }
 
     /**
@@ -209,23 +210,6 @@ public class ChessGame {
         }
         return endPositions;
     }
-
-    //generate an isUnderAttack function for checking if the king is in checkmate
-//    public boolean isUnderAttack(ChessPosition myPosition, TeamColor color) {
-//        TeamColor opponentColor = color == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
-//        ArrayList<ChessPosition> opponentPositions = getOpponentPosition(board, opponentColor);
-//        //iterate over each opponent piece producing its potential moves and seeing if those include myPosition
-//        for(var position : opponentPositions) {
-//            ChessPiece piece = board.getPiece(position);
-//            Collection<ChessMove> attackMoves = piece.pieceMoves(board, position);
-//            ArrayList<ChessPosition> attackEndPosition = getEndAttackPosition(attackMoves);
-//            //check if myPosition is in that opponent pieces attack range
-//            if(attackEndPosition.contains(myPosition)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     public boolean isUnderAttack(ChessBoard tempBoard, ChessPosition myPosition, TeamColor color) {
         TeamColor opponentColor = color == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
