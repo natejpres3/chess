@@ -157,7 +157,13 @@ public class ChessGame {
 
     public boolean isInCheckmate(TeamColor teamColor) {
         ChessPosition kingPosition = findKing(board, teamColor);
-        return isUnderAttack(board, kingPosition,teamColor);
+        if(isUnderAttack(board,kingPosition,teamColor)) {
+            Collection<ChessMove> validMoves = validMoves(kingPosition);
+            if(validMoves.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -168,7 +174,14 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = findKing(board, teamColor);
+        if(!isUnderAttack(board,kingPosition,teamColor)) {
+            Collection<ChessMove> validMoves = validMoves(kingPosition);
+            if(validMoves.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
