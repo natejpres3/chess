@@ -82,13 +82,17 @@ public class ChessGame {
         }
         Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
         return filterIllegals(board,pieceMoves,startPosition);
+    }
 
-        //checking for right turn
-//        if((isWhitesTurn && piece.getTeamColor() == TeamColor.WHITE) || (!isWhitesTurn && piece.getTeamColor() == TeamColor.BLACK)) {
-//            Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
-//            return filterIllegals(board,pieceMoves,startPosition);
-//        }
-//        return null;
+    //method for checking if the right team color is making the move
+    public boolean isRightTurn(ChessPiece piece) {
+        if(piece.getTeamColor() == TeamColor.WHITE && isWhitesTurn) {
+            return true;
+        } else if (piece.getTeamColor() == TeamColor.BLACK && !isWhitesTurn) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -98,17 +102,21 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        TeamColor pieceColor = board.getPiece(move.getStartPosition()).getTeamColor();
         ChessPiece piece = board.getPiece(move.getStartPosition());
-        if((isWhitesTurn && pieceColor == TeamColor.WHITE) || !isWhitesTurn && pieceColor == TeamColor.BLACK) {
-            Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
-            if(validMoves.contains(move)) {
-                board.addPiece(move.getEndPosition(),piece);
-                board.removePiece(move.getStartPosition());
-            }
-        } else {
+        if(piece == null) {
             throw new InvalidMoveException();
         }
+        TeamColor pieceColor = piece.getTeamColor();
+        if(!isRightTurn(piece)) {
+            throw new InvalidMoveException();
+        }
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        if(!validMoves.contains(move)) {
+            throw new InvalidMoveException();
+        }
+        // account for pawn promotions
+        board.addPiece(move.getEndPosition(),piece);
+        board.removePiece(move.getStartPosition());
     }
 
     /**
