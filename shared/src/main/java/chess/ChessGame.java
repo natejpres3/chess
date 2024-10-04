@@ -36,7 +36,11 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        isWhitesTurn = !isWhitesTurn;
+        if(team == TeamColor.WHITE) {
+            isWhitesTurn = true;
+        } else {
+            isWhitesTurn = false;
+        }
     }
 
     /**
@@ -94,7 +98,17 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        TeamColor pieceColor = board.getPiece(move.getStartPosition()).getTeamColor();
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        if((isWhitesTurn && pieceColor == TeamColor.WHITE) || !isWhitesTurn && pieceColor == TeamColor.BLACK) {
+            Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+            if(validMoves.contains(move)) {
+                board.addPiece(move.getEndPosition(),piece);
+                board.removePiece(move.getStartPosition());
+            }
+        } else {
+            throw new InvalidMoveException();
+        }
     }
 
     /**
