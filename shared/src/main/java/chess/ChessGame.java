@@ -115,8 +115,12 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
         // account for pawn promotions
+        if(move.getPromotionPiece() != null) {
+            piece = new ChessPiece(pieceColor,move.getPromotionPiece());
+        }
         board.addPiece(move.getEndPosition(),piece);
         board.removePiece(move.getStartPosition());
+        isWhitesTurn = !isWhitesTurn;
     }
 
     /**
@@ -181,23 +185,10 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return board;
     }
 
-    // opponent piece function to get all of the opponent pieces to use for under attack function
-//    public ArrayList<ChessPiece> getOpponentPieces(ChessBoard board, TeamColor opponentColor) {
-//        ArrayList<ChessPiece> opponentPieces = new ArrayList<>();
-//        for(int i=0; i<8; i++) {
-//            for(int j=0; j<8; j++) {
-//                ChessPosition position = new ChessPosition(i+1,j+1);
-//                if(board.getPiece(position) != null && board.getPiece(position).getTeamColor() == opponentColor) {
-//                    opponentPieces.add(new ChessPiece(opponentColor,board.getPiece(position).getPieceType()));
-//                }
-//            }
-//        }
-//        return opponentPieces;
-//    }
-    //get opponents position
+
     public ArrayList<ChessPosition> getOpponentPosition(ChessBoard board, TeamColor opponentColor) {
         ArrayList<ChessPosition> opponentPositions = new ArrayList<>();
         for(int i=1; i<9; i++) {
