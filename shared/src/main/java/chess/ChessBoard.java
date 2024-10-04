@@ -36,12 +36,12 @@ public class ChessBoard {
     public ChessBoard copy() {
         ChessBoard copiedBoard = new ChessBoard();
         for(int i=0; i<8; i++) {
-            for(int j=0; j<9; j++) {
+            for(int j=0; j<8; j++) {
                 ChessPiece piece = squares[i][j];
                 if(piece != null) {
-                    copiedBoard.addPiece(new ChessPosition(i,j),piece);
+                    copiedBoard.addPiece(new ChessPosition(i+1,j+1),piece);
                 } else {
-                    copiedBoard.addPiece(new ChessPosition(i,j), null);
+                    copiedBoard.addPiece(new ChessPosition(i+1,j+1), null);
                 }
             }
         }

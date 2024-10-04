@@ -47,6 +47,21 @@ public class ChessGame {
         BLACK
     }
 
+    public Collection<ChessMove> filterIllegals(ChessBoard board, Collection<ChessMove> possibleMoves, ChessPosition startPosition) {
+        Collection<ChessMove> legalMoves = new ArrayList<>();
+        ChessPiece piece = board.getPiece(startPosition);
+        // for each move, see if it results in a check on the king
+        for(var move : possibleMoves) {
+            ChessBoard tempBoard = board.copy();
+            tempBoard.testMove(piece,move);
+            ChessPosition theKing = findKing(tempBoard,piece.getTeamColor());
+            if(!isUnderAttack(tempBoard, theKing,piece.getTeamColor())) {
+                legalMoves.add(move);
+            }
+        }
+        return legalMoves;
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -55,29 +70,21 @@ public class ChessGame {
      * startPosition
      */
 
-    public Collection<ChessMove> filterIllegals(ChessBoard board, Collection<ChessMove> possibleMoves) {
-        Collection<ChessMove> legalMoves = new ArrayList<>();
-        // for each move, see if it results in a check on the king
-        for(var move : possibleMoves) {
-            ChessBoard tempBoard = board.copy();
-            ChessPiece piece = board.getPiece(move.getStartPosition());
-            if(piece == null) {break;}
-            
-        }
-        return legalMoves;
-    }
-
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
         //if there is no piece there
         if(piece == null) {
             return null;
         }
-        if((isWhitesTurn && piece.getTeamColor() == TeamColor.WHITE) || (!isWhitesTurn && piece.getTeamColor() == TeamColor.BLACK)) {
-            Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
-            return filterIllegals(board,pieceMoves);
-        }
-        return null;
+        Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
+        return filterIllegals(board,pieceMoves,startPosition);
+
+        //checking for right turn
+//        if((isWhitesTurn && piece.getTeamColor() == TeamColor.WHITE) || (!isWhitesTurn && piece.getTeamColor() == TeamColor.BLACK)) {
+//            Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
+//            return filterIllegals(board,pieceMoves,startPosition);
+//        }
+//        return null;
     }
 
     /**
@@ -111,7 +118,7 @@ public class ChessGame {
     public ChessPosition findKing(ChessBoard board, TeamColor teamColor) {
         for(int i=0; i<8; i++) {
             for(int j=0; j<8; j++) {
-                ChessPosition position = new ChessPosition(i,j);
+                ChessPosition position = new ChessPosition(i+1,j+1);
                 ChessPiece piece = board.getPiece(position);
                 if(piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
                     return position;
@@ -123,7 +130,7 @@ public class ChessGame {
 
     public boolean isInCheckmate(TeamColor teamColor) {
         ChessPosition kingPosition = findKing(board, teamColor);
-        return isUnderAttack(kingPosition,isWhitesTurn);
+        return isUnderAttack(board, kingPosition,teamColor);
     }
 
     /**
@@ -143,7 +150,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
@@ -156,18 +163,30 @@ public class ChessGame {
     }
 
     // opponent piece function to get all of the opponent pieces to use for under attack function
-    public ArrayList<ChessPiece> getOpponentPieces(ChessBoard board, boolean isWhitesTurn) {
-        ArrayList<ChessPiece> opponentPieces = new ArrayList<>();
-        TeamColor opponentColor = isWhitesTurn ? TeamColor.BLACK : TeamColor.WHITE;
-        for(int i=0; i<8; i++) {
-            for(int j=0; j<8; j++) {
+//    public ArrayList<ChessPiece> getOpponentPieces(ChessBoard board, TeamColor opponentColor) {
+//        ArrayList<ChessPiece> opponentPieces = new ArrayList<>();
+//        for(int i=0; i<8; i++) {
+//            for(int j=0; j<8; j++) {
+//                ChessPosition position = new ChessPosition(i+1,j+1);
+//                if(board.getPiece(position) != null && board.getPiece(position).getTeamColor() == opponentColor) {
+//                    opponentPieces.add(new ChessPiece(opponentColor,board.getPiece(position).getPieceType()));
+//                }
+//            }
+//        }
+//        return opponentPieces;
+//    }
+    //get opponents position
+    public ArrayList<ChessPosition> getOpponentPosition(ChessBoard board, TeamColor opponentColor) {
+        ArrayList<ChessPosition> opponentPositions = new ArrayList<>();
+        for(int i=1; i<9; i++) {
+            for(int j=1; j<9; j++) {
                 ChessPosition position = new ChessPosition(i,j);
-                if(board.getPiece(position) != null && board.getPiece(position).getTeamColor() != opponentColor) {
-                    opponentPieces.add(new ChessPiece(opponentColor,board.getPiece(position).getPieceType()));
+                if(board.getPiece(position) != null && board.getPiece(position).getTeamColor() == opponentColor) {
+                    opponentPositions.add(position);
                 }
             }
         }
-        return opponentPieces;
+        return opponentPositions;
     }
 
     ArrayList<ChessPosition> getEndAttackPosition(Collection<ChessMove> attackMoves) {
@@ -179,11 +198,29 @@ public class ChessGame {
     }
 
     //generate an isUnderAttack function for checking if the king is in checkmate
-    public boolean isUnderAttack(ChessPosition myPosition, boolean isWhitesTurn) {
-        ArrayList<ChessPiece> opponentPieces = getOpponentPieces(board, isWhitesTurn);
+//    public boolean isUnderAttack(ChessPosition myPosition, TeamColor color) {
+//        TeamColor opponentColor = color == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+//        ArrayList<ChessPosition> opponentPositions = getOpponentPosition(board, opponentColor);
+//        //iterate over each opponent piece producing its potential moves and seeing if those include myPosition
+//        for(var position : opponentPositions) {
+//            ChessPiece piece = board.getPiece(position);
+//            Collection<ChessMove> attackMoves = piece.pieceMoves(board, position);
+//            ArrayList<ChessPosition> attackEndPosition = getEndAttackPosition(attackMoves);
+//            //check if myPosition is in that opponent pieces attack range
+//            if(attackEndPosition.contains(myPosition)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
+    public boolean isUnderAttack(ChessBoard tempBoard, ChessPosition myPosition, TeamColor color) {
+        TeamColor opponentColor = color == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+        ArrayList<ChessPosition> opponentPositions = getOpponentPosition(tempBoard, opponentColor);
         //iterate over each opponent piece producing its potential moves and seeing if those include myPosition
-        for(var piece : opponentPieces) {
-            Collection<ChessMove> attackMoves = piece.pieceMoves(board, myPosition);
+        for(var position : opponentPositions) {
+            ChessPiece piece = tempBoard.getPiece(position);
+            Collection<ChessMove> attackMoves = piece.pieceMoves(tempBoard, position);
             ArrayList<ChessPosition> attackEndPosition = getEndAttackPosition(attackMoves);
             //check if myPosition is in that opponent pieces attack range
             if(attackEndPosition.contains(myPosition)) {
