@@ -1,8 +1,6 @@
 package service;
 
-import dataaccess.DataAccessException;
-import dataaccess.IAuthDAO;
-import dataaccess.IUserDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 
@@ -10,10 +8,10 @@ import java.util.UUID;
 
 
 public class UserService {
-    private final IUserDAO userDAO;
-    private final IAuthDAO authDAO;
+    private final MemoryUserDAO userDAO;
+    private final MemoryAuthDAO authDAO;
 
-    public UserService(IUserDAO userDAO, IAuthDAO authDAO) {
+    public UserService(MemoryUserDAO userDAO, MemoryAuthDAO authDAO) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
@@ -45,7 +43,18 @@ public class UserService {
         return authData;
     }
 
-//    public void createUser(UserData user) {
-//        memoryUserDAO.createUser(user);
-//    }
+    public void logoutUser(String authToken) throws DataAccessException {
+        //find the user using the authToken and remove it from database. Otherwise throw an error.
+        try {
+            authDAO.getAuthData(authToken);
+        } catch(DataAccessException e) {
+            throw new DataAccessException("");
+        }
+        authDAO.deleteAuthToken(authToken);
+    }
+
+    public void clear() {
+        userDAO.clear();
+        authDAO.clear();
+    }
 }
