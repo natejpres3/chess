@@ -7,6 +7,9 @@ import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
@@ -50,6 +53,24 @@ public class UserServiceTest {
         UserData newUserData = new UserData("ninefirenine", "Ilikecars", "joe@gmail.com");
         service.register(newUserData);
         UserData wrongUserPassword = new UserData("ninefirenine","wrong", null);
+//        assertFalse(service.validateAuthToken(wrongUserPassword));
         assertThrows(DataAccessException.class,() -> {service.loginUser(wrongUserPassword);});
+    }
+
+    @Test
+    void logoutUserSuccess() throws DataAccessException {
+        UserData newUserData = new UserData("ninefirenine", "Ilikecars", "joe@gmail.com");
+        AuthData authData = service.register(newUserData);
+        authData = service.loginUser(newUserData);
+        service.logoutUser(authData.authToken());
+        assertFalse(service.authenicateToken(authData));
+    }
+
+    @Test
+    void logoutUserFailure() throws DataAccessException {
+        UserData newUserData = new UserData("ninefirenine", "Ilikecars", "joe@gmail.com");
+        AuthData authData = service.register(newUserData);
+        String badAuthToken = UUID.randomUUID().toString();
+        assertThrows(DataAccessException.class,()->{service.logoutUser(badAuthToken);});
     }
 }

@@ -34,7 +34,7 @@ public class UserService {
     public AuthData loginUser(UserData userData) throws DataAccessException{
         boolean validAuthToken;
         try {
-            validAuthToken = userDAO.validateAuthToken(userData.username(),userData.password());
+            validAuthToken = validateAuthToken(userData);
         } catch (DataAccessException e) {
             throw new DataAccessException("");
         }
@@ -75,6 +75,10 @@ public class UserService {
         } else {
             throw new DataAccessException("Invalid authToken");
         }
+    }
+
+    public boolean authenicateToken(AuthData authData) throws DataAccessException {
+        return authDAO.authenicateToken(authData);
     }
 
     public void clear() {

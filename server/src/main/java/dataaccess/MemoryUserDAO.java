@@ -30,12 +30,12 @@ public class MemoryUserDAO implements IUserDAO{
         boolean userThere = false;
         if(users.containsKey(username)) {
             userThere = true;
-            if(users.get(username).password() == password) {
+            if(users.get(username).password().equals(password)) {
                 return true;
             }
         }
         if(userThere) {
-            throw new DataAccessException("Wrong password");
+            return false;
         } else {
             throw new DataAccessException("User does not exist");
         }

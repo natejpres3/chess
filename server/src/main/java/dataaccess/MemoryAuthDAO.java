@@ -32,6 +32,15 @@ public class MemoryAuthDAO implements IAuthDAO{
         auths.remove(authToken);
     }
 
+    public boolean authenicateToken(AuthData authData) {
+        if(auths.containsKey(authData.username())) {
+            if(auths.containsKey(auths.get(authData.username()).authToken())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void clear() {
         auths.clear();
