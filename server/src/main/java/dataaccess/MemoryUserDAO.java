@@ -24,14 +24,19 @@ public class MemoryUserDAO implements IUserDAO{
         return user;
     }
 
-    @Override
-    public void deleteUser(UserData user) throws DataAccessException {
-        //find the user to remove if it's not null it will be removed
-        UserData removeUser = users.get(user.username());
-        if(removeUser == null) {
-            throw new DataAccessException("The user already doesn't exist");
+    public boolean validateAuthToken(String username, String password) throws DataAccessException{
+        boolean userThere = false;
+        if(users.containsKey(username)) {
+            userThere = true;
+            if(users.get(username).password() == password) {
+                return true;
+            }
         }
-        users.remove(removeUser);
+        if(userThere) {
+            return false;
+        } else {
+            throw new DataAccessException("User does not exist");
+        }
     }
 
     @Override

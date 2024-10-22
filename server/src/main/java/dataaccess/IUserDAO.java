@@ -8,6 +8,6 @@ import java.util.List;
 public interface IUserDAO {
     void createUser(UserData user) throws DataAccessException;
     UserData getUser(String username) throws DataAccessException;
-    void deleteUser(UserData user) throws DataAccessException;
+    boolean validateAuthToken(String username, String password) throws DataAccessException;
     void clear();
 }

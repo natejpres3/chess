@@ -36,14 +36,14 @@ public class MemoryGameDAO implements IGameDAO{
         games.put(gameID,gameData);
     }
 
-    @Override
-    public void deleteGame(int gameID) throws DataAccessException {
-        GameData game = games.get(gameID);
-        if(game == null) {
-            throw new DataAccessException("There is not game with this ID to delete");
-        }
-        games.remove(gameID);
-    }
+//    @Override
+//    public void deleteGame(int gameID) throws DataAccessException {
+//        GameData game = games.get(gameID);
+//        if(game == null) {
+//            throw new DataAccessException("There is not game with this ID to delete");
+//        }
+//        games.remove(gameID);
+//    }
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
