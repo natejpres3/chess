@@ -35,7 +35,7 @@ public class MemoryUserDAO implements IUserDAO{
             }
         }
         if(userThere) {
-            return false;
+            throw new DataAccessException("Wrong password");
         } else {
             throw new DataAccessException("User does not exist");
         }
