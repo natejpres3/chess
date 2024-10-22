@@ -2,6 +2,8 @@ package dataaccess;
 
 import model.UserData;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryUserDAO implements IUserDAO{
@@ -37,6 +39,10 @@ public class MemoryUserDAO implements IUserDAO{
         } else {
             throw new DataAccessException("User does not exist");
         }
+    }
+
+    public Collection<UserData> listUsers() {
+        return new ArrayList<>(users.values());
     }
 
     @Override

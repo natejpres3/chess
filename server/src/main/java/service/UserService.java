@@ -2,8 +2,10 @@ package service;
 
 import dataaccess.*;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
+import java.util.Collection;
 import java.util.UUID;
 
 
@@ -51,6 +53,19 @@ public class UserService {
             throw new DataAccessException("");
         }
         authDAO.deleteAuthToken(authToken);
+    }
+
+//    public Collection<UserData> listUsers(String authToken) throws DataAccessException {
+//        try {
+//            authDAO.getAuthData(authToken);
+//        } catch(DataAccessException e) {
+//            throw new DataAccessException("");
+//        }
+//        return userDAO.listUsers();
+//    }
+
+    public Collection<UserData> listUsers() throws DataAccessException {
+        return userDAO.listUsers();
     }
 
     public void clear() {
