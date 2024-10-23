@@ -11,7 +11,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
-    static final UserService service = new UserService(new MemoryUserDAO(), new MemoryAuthDAO());
+    static UserService service = new UserService(new MemoryUserDAO(), new MemoryAuthDAO());
 
     @BeforeEach
     void clear() {
