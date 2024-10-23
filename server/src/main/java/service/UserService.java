@@ -18,12 +18,15 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public AuthData register(UserData userData) throws DataAccessException {
-        try {
-            userDAO.createUser(userData);
-        } catch (DataAccessException e) {
-            throw new DataAccessException("");
+    public AuthData register(UserData userData) throws DataAccessException,BadRequestException {
+        if(userData.username() == null || userData.password() == null) {
+            throw new BadRequestException("");
         }
+        if(userDAO.getUser(userData.username()) != null) {
+            throw new AlreadyTakenException("Error: already taken");
+        }
+        userDAO.createUser(userData);
+
         String authToken = UUID.randomUUID().toString();
         AuthData authData = new AuthData(authToken, userData.username());
         authDAO.createAuth(authData);

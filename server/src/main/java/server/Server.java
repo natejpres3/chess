@@ -67,18 +67,15 @@ public class Server {
             AuthData authData = userService.register(userData);
             res.status(200);
             return new Gson().toJson(authData);
-        } catch(DataAccessException e) {
-            String errorMessage = e.getMessage();
-            if(errorMessage.contains("bad request")) {
-                res.status(400);
-                return "{\"message\": \"Error: bad request\"}";
-            } else if(errorMessage.contains("already taken")) {
-                res.status(403);
-                return "{\"message\": \"Error: already taken\"}";
-            } else {
-                res.status(500);
-                return "{\"message\": \"Error: (description of error)\"}";
-            }
+        } catch(BadRequestException e) {
+            res.status(400);
+            return "{\"message\": \"Error: bad request\"}";
+        } catch (DataAccessException e) {
+            res.status(500);
+            return "{\"message\": \"Error: (description of error)\"}";
+        } catch(AlreadyTakenException e) {
+            res.status(403);
+            return "{\"message\": \"Error: already taken\"}";
         }
     }
 

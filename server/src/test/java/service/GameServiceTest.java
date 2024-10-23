@@ -19,6 +19,8 @@ public class GameServiceTest {
     static MemoryAuthDAO authDAO;
     static AuthData authData;
 
+    GameData defaultGameData;
+
     @BeforeAll
     static void setup() throws DataAccessException {
         gameDAO = new MemoryGameDAO();
@@ -33,8 +35,9 @@ public class GameServiceTest {
         service.clear();
     }
 
-    @Test
-    void createGameSuccess() throws DataAccessException {
-
-    }
+//    @Test
+//    void createGameSuccess() throws DataAccessException {
+//        gameDAO.createGame();
+//
+//    }
 }
