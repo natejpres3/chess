@@ -42,21 +42,6 @@ public class GameService {
         gameDAO.createGame(new GameData(gameID,null,null,gameData.gameName(),game));
 
         return gameID;
-//        try {
-//            authDAO.getAuthData(authToken);
-//        } catch(DataAccessException e) {
-//            throw new DataAccessException("");
-//        }
-//        int gameID = 0;
-//        while(gameDAO.getGame(gameID) != null) {
-//            gameID++;
-//        }
-//        ChessGame game = new ChessGame();
-//        ChessBoard board = new ChessBoard();
-//        board.resetBoard();
-//        gameDAO.createGame(new GameData(gameID,null,null,gameName,game));
-//
-//        return gameID;
     }
 
     public void joinGame(String authToken, String playerColor, int gameID) throws DataAccessException {
@@ -71,6 +56,9 @@ public class GameService {
         try {
             gameData = gameDAO.getGame(gameID);
         } catch (DataAccessException e) {
+            throw new BadRequestException("");
+        }
+        if(playerColor == null || gameData == null) {
             throw new BadRequestException("");
         }
         String whiteUser = gameData.whiteUsername();
