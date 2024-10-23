@@ -52,15 +52,6 @@ public class Server {
     }
 
     private Object clear(Request req, Response res) {
-//        try {
-//            userService.clear();
-//            gameService.clear();
-//            res.status(200);
-//            return "{}";
-//        } catch(DataAccessException e) {
-//            res.status(500);
-//            return "{\"message\": \"Error: (description of error)\"}";
-//        }
         userService.clear();
         gameService.clear();
         res.status(200);

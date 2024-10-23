@@ -12,18 +12,12 @@ public class MemoryGameDAO implements IGameDAO{
 
     @Override
     public void createGame(GameData gameData) throws DataAccessException {
-//        if(games.containsKey(gameData.gameID())) {
-//            throw new DataAccessException("This game already exists");
-//        }
         games.put(gameData.gameID(), gameData);
     }
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
         GameData game = games.get(gameID);
-//        if(game == null) {
-//            throw new DataAccessException("The game is not found");
-//        }
         return game;
     }
 
@@ -36,18 +30,8 @@ public class MemoryGameDAO implements IGameDAO{
         games.put(gameID,gameData);
     }
 
-//    @Override
-//    public void deleteGame(int gameID) throws DataAccessException {
-//        GameData game = games.get(gameID);
-//        if(game == null) {
-//            throw new DataAccessException("There is not game with this ID to delete");
-//        }
-//        games.remove(gameID);
-//    }
-
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
-//        return new ArrayList<>(games.values());
         return new ArrayList<>(games.values());
     }
 
