@@ -44,7 +44,7 @@ public class GameService {
         return gameID;
     }
 
-    public void joinGame(String authToken, String playerColor, int gameID) throws DataAccessException {
+    public void joinGame(String authToken, String playerColor, int gameID) throws DataAccessException, AlreadyTakenException {
         //global authData and gameData for use down below
         GameData gameData;
         AuthData authData;

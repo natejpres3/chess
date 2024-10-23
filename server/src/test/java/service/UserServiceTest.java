@@ -1,8 +1,6 @@
 package service;
 
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +32,7 @@ public class UserServiceTest {
     void registerUserFailure() throws DataAccessException {
         UserData newUserData = new UserData("ninefirenine", "Ilikecars", "joe@gmail.com");
         service.register(newUserData);
-        assertThrows(DataAccessException.class, () -> {service.register(newUserData);});
+        assertThrows(AlreadyTakenException.class, () -> {service.register(newUserData);});
     }
 
     @Test
@@ -53,7 +51,6 @@ public class UserServiceTest {
         UserData newUserData = new UserData("ninefirenine", "Ilikecars", "joe@gmail.com");
         service.register(newUserData);
         UserData wrongUserPassword = new UserData("ninefirenine","wrong", null);
-//        assertFalse(service.validateAuthToken(wrongUserPassword));
         assertThrows(DataAccessException.class,() -> {service.loginUser(wrongUserPassword);});
     }
 
@@ -71,6 +68,15 @@ public class UserServiceTest {
         UserData newUserData = new UserData("ninefirenine", "Ilikecars", "joe@gmail.com");
         AuthData authData = service.register(newUserData);
         String badAuthToken = UUID.randomUUID().toString();
-        assertThrows(DataAccessException.class,()->{service.logoutUser(badAuthToken);});
+        assertThrows(UnauthorizedException.class,()->{service.logoutUser(badAuthToken);});
+    }
+
+    @Test
+    void clearAllUserData() throws DataAccessException {
+        UserData newUserData = new UserData("ninefirenine", "Ilikecars", "joe@gmail.com");
+        service.register(newUserData);
+        service.clear();
+        var users = service.listUsers();
+        assertEquals(0,users.size());
     }
 }

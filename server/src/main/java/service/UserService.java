@@ -58,23 +58,9 @@ public class UserService {
             }
         } catch(DataAccessException e) {
             throw new UnauthorizedException("unauthorized");
-//            if(e.getMessage().contains("unauthorized")) {
-//                throw new UnauthorizedException("Unauthorized");
-//            } else {
-//                throw new DataAccessException("");
-//            }
         }
         authDAO.deleteAuthToken(authToken);
     }
-
-//    public Collection<UserData> listUsers(String authToken) throws DataAccessException {
-//        try {
-//            authDAO.getAuthData(authToken);
-//        } catch(DataAccessException e) {
-//            throw new DataAccessException("");
-//        }
-//        return userDAO.listUsers();
-//    }
 
     public Collection<UserData> listUsers() throws DataAccessException {
         return userDAO.listUsers();

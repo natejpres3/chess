@@ -3,6 +3,7 @@ package dataaccess;
 import model.AuthData;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class MemoryAuthDAO implements IAuthDAO{
     private final HashMap<String, AuthData> auths = new HashMap<>();
@@ -40,6 +41,10 @@ public class MemoryAuthDAO implements IAuthDAO{
             }
         }
         return false;
+    }
+
+    public String generateAuthToken() {
+        return UUID.randomUUID().toString();
     }
 
     @Override
