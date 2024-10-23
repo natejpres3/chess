@@ -45,12 +45,21 @@ public class UserService {
         return authData;
     }
 
-    public void logoutUser(String authToken) throws DataAccessException {
+    public void logoutUser(String authToken) throws DataAccessException, UnauthorizedException {
         //find the user using the authToken and remove it from database. Otherwise throw an error.
         try {
-            authDAO.getAuthData(authToken);
+            AuthData authData = authDAO.getAuthData(authToken);
+            boolean authorized = authDAO.authenicateToken(authData);
+            if(!authorized) {
+                throw new DataAccessException("Error: unauthorized");
+            }
         } catch(DataAccessException e) {
-            throw new DataAccessException("");
+            throw new UnauthorizedException("unauthorized");
+//            if(e.getMessage().contains("unauthorized")) {
+//                throw new UnauthorizedException("Unauthorized");
+//            } else {
+//                throw new DataAccessException("");
+//            }
         }
         authDAO.deleteAuthToken(authToken);
     }

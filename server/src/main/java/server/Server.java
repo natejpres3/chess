@@ -1,10 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -31,7 +28,7 @@ public class Server {
         Spark.delete("/db",this::clear);
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
-
+        Spark.delete("/session",this::logout);
         //GameService endpoints
         Spark.post("/game",this::createGame);
 
@@ -93,6 +90,21 @@ public class Server {
             res.status(200);
             return new Gson().toJson(authData);
         } catch(DataAccessException e) {
+            res.status(401);
+            return "{\"message\": \"Error: unauthorized\"}";
+        }
+    }
+
+    private Object logout(Request req, Response res) {
+        String authToken = req.headers("authorization");
+        try {
+            userService.logoutUser(authToken);
+            res.status(200);
+            return "{}";
+        } catch (DataAccessException e) {
+            res.status(500);
+            return "{\"message\": \"Error: (description of error)\"}";
+        } catch(UnauthorizedException e) {
             res.status(401);
             return "{\"message\": \"Error: unauthorized\"}";
         }

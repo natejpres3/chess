@@ -19,7 +19,7 @@ public class MemoryAuthDAO implements IAuthDAO{
     public AuthData getAuthData(String authToken) throws DataAccessException {
         AuthData auth = auths.get(authToken);
         if(auth == null) {
-            throw new DataAccessException("This authToken doesn't exist");
+            throw new DataAccessException("Error while retrieving authData");
         }
         return auth;
     }
@@ -33,8 +33,9 @@ public class MemoryAuthDAO implements IAuthDAO{
     }
 
     public boolean authenicateToken(AuthData authData) {
-        if(auths.containsKey(authData.username())) {
-            if(auths.containsKey(auths.get(authData.username()).authToken())) {
+        if(auths.containsKey(authData.authToken())) {
+            AuthData storedData = auths.get(authData.authToken());
+            if(storedData.username().equals(authData.username())) {
                 return true;
             }
         }
