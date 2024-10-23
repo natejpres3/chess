@@ -2,9 +2,8 @@ package service;
 
 import chess.ChessBoard;
 import chess.ChessGame;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
+import chess.ChessPiece;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 
@@ -19,19 +18,20 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public Collection<GameData> listGames(String authToken) throws DataAccessException {
-        try {
-            authDAO.getAuthData(authToken);
-        } catch(DataAccessException e) {
-            throw new DataAccessException("");
+    public int createGame(String authToken, GameData gameData) throws DataAccessException {
+        if(gameData.gameName() == null || authToken == null) {
+            throw new BadRequestException("");
         }
-        return gameDAO.listGames();
-    }
-
-    public int createGame(String authToken, String gameName) throws DataAccessException {
-        try {
-            authDAO.getAuthData(authToken);
-        } catch(DataAccessException e) {
+        AuthData authData;
+        try{
+            authData = authDAO.getAuthData(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedException("");
+        }
+        if(!authDAO.authenicateToken(authData)) {
+            throw new UnauthorizedException("");
+        }
+        if(gameDAO.getGame(gameData.gameID()) != null) {
             throw new DataAccessException("");
         }
         int gameID = 0;
@@ -41,38 +41,71 @@ public class GameService {
         ChessGame game = new ChessGame();
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        gameDAO.createGame(new GameData(gameID,null,null,gameName,game));
+        gameDAO.createGame(new GameData(gameID,null,null,gameData.gameName(),game));
 
         return gameID;
+//        try {
+//            authDAO.getAuthData(authToken);
+//        } catch(DataAccessException e) {
+//            throw new DataAccessException("");
+//        }
+//        int gameID = 0;
+//        while(gameDAO.getGame(gameID) != null) {
+//            gameID++;
+//        }
+//        ChessGame game = new ChessGame();
+//        ChessBoard board = new ChessBoard();
+//        board.resetBoard();
+//        gameDAO.createGame(new GameData(gameID,null,null,gameName,game));
+//
+//        return gameID;
     }
 
     public void joinGame(String authToken, String playerColor, int gameID) throws DataAccessException {
         //global authData and gameData for use down below
         GameData gameData;
         AuthData authData;
-        // authenticate the authToken
-        try {
+        try{
             authData = authDAO.getAuthData(authToken);
         } catch (DataAccessException e) {
-            throw new DataAccessException("");
+            throw new UnauthorizedException("");
         }
-        //get the game data for the gameID
         try {
             gameData = gameDAO.getGame(gameID);
-        } catch(DataAccessException e) {
-            throw new DataAccessException("");
+        } catch (DataAccessException e) {
+            throw new BadRequestException("");
         }
-
-        //create the necessary game data given the player color
-        if(playerColor == "WHITE") {
-            gameData.whiteUsername().equals(authData.username());
-        } else if(playerColor == "BLACK") {
-            gameData.blackUsername().equals(authData.username());
+        String whiteUser = gameData.whiteUsername();
+        String blackUser = gameData.blackUsername();
+        if(playerColor.equals("WHITE")) {
+            if(gameData.whiteUsername() != null && !whiteUser.equals(authData.username())) {
+                throw new AlreadyTakenException("");
+            } else {
+                whiteUser = authData.username();
+            }
+        } else if(playerColor.equals("BLACK")) {
+            if(gameData.blackUsername() != null && !blackUser.equals(authData.username())) {
+                throw new AlreadyTakenException("");
+            } else {
+                blackUser = authData.username();
+            }
         } else {
-            throw new DataAccessException("This is not a team color");
+            throw new BadRequestException("");
         }
-        //update the game with the username as the appropriate color
-        gameDAO.updateGame(gameID, gameData);
+        try{
+            gameDAO.updateGame(gameID, new GameData(gameID,whiteUser,blackUser,gameData.gameName(),gameData.game()));
+        } catch (DataAccessException e) {
+            throw new BadRequestException("");
+        }
+    }
+
+    public Collection<GameData> listGames(String authToken) throws DataAccessException {
+        try {
+            authDAO.getAuthData(authToken);
+        } catch(DataAccessException e) {
+            throw new UnauthorizedException("");
+        }
+        return gameDAO.listGames();
     }
 
     //clear games

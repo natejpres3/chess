@@ -12,18 +12,18 @@ public class MemoryGameDAO implements IGameDAO{
 
     @Override
     public void createGame(GameData gameData) throws DataAccessException {
-        if(games.containsKey(gameData.gameID())) {
-            throw new DataAccessException("This game already exists");
-        }
+//        if(games.containsKey(gameData.gameID())) {
+//            throw new DataAccessException("This game already exists");
+//        }
         games.put(gameData.gameID(), gameData);
     }
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
         GameData game = games.get(gameID);
-        if(game == null) {
-            throw new DataAccessException("The game is not found");
-        }
+//        if(game == null) {
+//            throw new DataAccessException("The game is not found");
+//        }
         return game;
     }
 

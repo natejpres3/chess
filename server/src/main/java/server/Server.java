@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
@@ -8,6 +9,11 @@ import model.UserData;
 import service.GameService;
 import service.UserService;
 import spark.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Server {
 
@@ -31,7 +37,8 @@ public class Server {
         Spark.delete("/session",this::logout);
         //GameService endpoints
         Spark.post("/game",this::createGame);
-
+        Spark.put("/game",this::joinGame);
+        Spark.get("/game",this::listGames);
         //This line initializes the server and can be removed once you have a functioning endpoint 
 //        Spark.init();
 
@@ -110,23 +117,62 @@ public class Server {
     private Object createGame(Request req, Response res) {
         GameData gameData = new Gson().fromJson(req.body(), GameData.class);
         String authToken = req.headers("authorization");
-
         try {
-            int gameID = gameService.createGame(authToken,gameData.gameName());
+            int gameID = gameService.createGame(authToken,gameData);
             res.status(200);
-            return new Gson().toJson(gameID);
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("gameID",gameID);
+            return jsonObject.toString();
         } catch(DataAccessException e) {
+            res.status(500);
+            return "{\"message\": \"Error: (description of error)\"}";
+        } catch(UnauthorizedException e) {
+            res.status(401);
+            return "{\"message\": \"Error: unauthorized\"}";
+        } catch (BadRequestException e) {
             res.status(400);
             return "{\"message\": \"Error: bad request\"}";
         }
     }
 
-//    private Object joinGame(Request req, Response res) {
-//        GameData gameData = new Gson().fromJson(req.body(),GameData.class);
-//        String authToken = req.headers("authorization");
-//
-//        try {
-//
-//        }
-//    }
+    private Object joinGame(Request req, Response res) {
+        String authToken = req.headers("authorization");
+        record JoinGameData(String playerColor, int gameID) {}
+        JoinGameData joinGameData = new Gson().fromJson(req.body(),JoinGameData.class);
+
+        try {
+            gameService.joinGame(authToken,joinGameData.playerColor, joinGameData.gameID);
+            res.status(200);
+            return "{}";
+        } catch(BadRequestException e) {
+            res.status(400);
+            return "{\"message\": \"Error: bad request\"}";
+        } catch(UnauthorizedException e) {
+            res.status(401);
+            return "{\"message\": \"Error: unauthorized\"}";
+        } catch(AlreadyTakenException e) {
+            res.status(403);
+            return "{\"message\": \"Error: already taken\"}";
+        } catch(DataAccessException e) {
+            res.status(500);
+            return "{\"message\": \"Error: (description of error)\"}";
+        }
+    }
+
+    private Object listGames(Request req, Response res) {
+        String authToken = req.headers("authorization");
+        try {
+            Collection<GameData> games = gameService.listGames(authToken);
+            res.status(200);
+            Map<String, Collection<GameData>> result = new HashMap<>();
+            result.put("games", games);
+            return new Gson().toJson(result);
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return "{\"message\": \"Error: unauthorized\"}";
+        } catch (DataAccessException e) {
+            res.status(500);
+            return "{\"message\": \"Error: (description of error)\"}";
+        }
+    }
 }
