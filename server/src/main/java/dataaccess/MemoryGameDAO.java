@@ -47,7 +47,16 @@ public class MemoryGameDAO implements IGameDAO{
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
+//        return new ArrayList<>(games.values());
         return new ArrayList<>(games.values());
+    }
+
+    public int generateGameID() {
+        int gameID = 1;
+        while(games.containsKey(gameID)) {
+            gameID++;
+        }
+        return gameID;
     }
 
     @Override

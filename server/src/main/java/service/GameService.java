@@ -8,6 +8,7 @@ import model.AuthData;
 import model.GameData;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 public class GameService {
     MemoryGameDAO gameDAO;
@@ -34,10 +35,7 @@ public class GameService {
         if(gameDAO.getGame(gameData.gameID()) != null) {
             throw new DataAccessException("");
         }
-        int gameID = 0;
-        while(gameDAO.getGame(gameID) != null) {
-            gameID++;
-        }
+        int gameID = gameDAO.generateGameID();
         ChessGame game = new ChessGame();
         ChessBoard board = new ChessBoard();
         board.resetBoard();
