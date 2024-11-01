@@ -7,20 +7,23 @@ import java.sql.SQLException;
 
 public class MySQLUserDAO  implements IUserDAO{
 
-    public MySQLUserDAO() {
-        try {
-            configureDatabase();
-        } catch(DataAccessException e) {
-            throw new ResolutionException();
-        }
-        try {
-
-        }
+    public MySQLUserDAO() throws DataAccessException{
+        configureDatabase();
     }
 
     @Override
     public void createUser(UserData user) throws DataAccessException {
-
+        try(var conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+            try(var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, user.username());
+                ps.setString(2, user.password());
+                ps.setString(3, user.email());
+                ps.executeUpdate();
+            }
+        } catch(SQLException e) {
+            throw new DataAccessException("User already exists");
+        }
     }
 
     @Override
@@ -41,8 +44,10 @@ public class MySQLUserDAO  implements IUserDAO{
     private final String createStatement =
             """
             CREATE TABLE IF NOT EXISTS users (
-            'id' 
-            
+            username VARCHAR(255) NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            email VARCHAR(255),
+            PRIMARY KEY (username)
             """;
 
     private void configureDatabase() throws DataAccessException {
