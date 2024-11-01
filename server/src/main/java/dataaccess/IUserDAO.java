@@ -9,5 +9,5 @@ public interface IUserDAO {
     void createUser(UserData user) throws DataAccessException;
     UserData getUser(String username) throws DataAccessException;
     boolean validateAuthToken(String username, String password) throws DataAccessException;
-    void clear();
+    void clear() throws DataAccessException;
 }

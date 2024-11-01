@@ -1,6 +1,8 @@
 package dataaccess;
 
 import model.UserData;
+import org.eclipse.jetty.server.Authentication;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.lang.module.ResolutionException;
 import java.sql.SQLException;
@@ -17,7 +19,7 @@ public class MySQLUserDAO  implements IUserDAO{
             var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
             try(var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, user.username());
-                ps.setString(2, user.password());
+                ps.setString(2, encryptPassword(user.password()));
                 ps.setString(3, user.email());
                 ps.executeUpdate();
             }
@@ -28,17 +30,39 @@ public class MySQLUserDAO  implements IUserDAO{
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
+        try(var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, password, email FROM users WHERE username=?";
+            try(var ps = conn.prepareStatement(statement)) {
+                ps.setString(1,username);
+                try(var rs = ps.executeQuery()) {
+                    if(rs.next()) {
+                        var password = rs.getString("password");
+                        var email = rs.getString("email");
+                        return new UserData(username,password,email);
+                    }
+                }
+            }
+        } catch(SQLException e) {
+            throw new DataAccessException("User is not found");
+        }
         return null;
     }
 
     @Override
     public boolean validateAuthToken(String username, String password) throws DataAccessException {
-        return false;
+        UserData userData = getUser(username);
+        return BCrypt.checkpw(password,userData.password());
     }
 
     @Override
-    public void clear() {
-
+    public void clear() throws DataAccessException{
+        var statement = "TRUNCATE TABLE users";
+        try(var conn = DatabaseManager.getConnection()) {
+            var ps = conn.prepareStatement(statement);
+            ps.executeUpdate();
+        } catch(SQLException | DataAccessException e) {
+            throw new DataAccessException("Failed to delete all users");
+        }
     }
 
     private final String createStatement =
@@ -60,4 +84,17 @@ public class MySQLUserDAO  implements IUserDAO{
             throw new DataAccessException("Unable to configure database");
         }
     }
+
+    private String encryptPassword(String clearTextPassword) {
+        String encryptedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+        return encryptedPassword;
+    }
+
+//    boolean verifyUser(String username, String providedClearTextPassword) {
+//        // read the previously hashed password from the database
+////        var hashedPassword = readHashedPasswordFromDatabase(username);
+//
+//        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
+//    }
+
 }
