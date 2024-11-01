@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import model.GameData;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -56,11 +57,42 @@ public class MySQLGameDAO implements IGameDAO{
 
     @Override
     public void updateGame(int gameID, GameData gameData) throws DataAccessException {
-
+        try(var conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, gameName=?, game=? WHERE gameID=?";
+            try(var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, gameData.whiteUsername());
+                ps.setString(2, gameData.blackUsername());
+                ps.setString(3, gameData.gameName());
+                var json = new Gson().toJson(gameData.game());
+                ps.setString(4, json);
+                ps.setInt(5, gameID);
+                ps.executeUpdate();
+            }
+        } catch(SQLException e) {
+            throw new DataAccessException("");
+        }
     }
 
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
+        Collection<GameData> listOfGames = new ArrayList<>();
+        try(var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM games";
+            try(var ps = conn.prepareStatement(statement)) {
+                try(var rs = ps.executeQuery()) {
+                    while(rs.next()) {
+                        var gameID = rs.getInt("gameID");
+                        var whiteUsername = rs.getString("whiteUsername");
+                        var blackUsername = rs.getString("blackUsername");
+                        var gameName = rs.getString("gameName");
+                        var json = new Gson().fromJson(rs.getString("game"), ChessGame.class);
+                        listOfGames.add(new GameData(gameID,whiteUsername,blackUsername,gameName,json));
+                    }
+                }
+            }
+        } catch(SQLException e) {
+            throw new DataAccessException("");
+        }
         return List.of();
     }
 

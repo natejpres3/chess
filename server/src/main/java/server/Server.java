@@ -17,12 +17,15 @@ import java.util.Map;
 
 public class Server {
 
-    MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    MySQLAuthDAO authDAO = new MySQLAuthDAO();
     MemoryUserDAO userDAO = new MemoryUserDAO();
     MemoryGameDAO gameDAO = new MemoryGameDAO();
 
     private final UserService userService = new UserService(userDAO,authDAO);
     private final GameService gameService = new GameService(gameDAO,authDAO);
+
+    public Server() throws DataAccessException {
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
