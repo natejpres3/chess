@@ -54,7 +54,10 @@ public class MySQLAuthDAO implements IAuthDAO{
             var statement = "DELETE FROM auths WHERE authToken=?";
             try(var ps = conn.prepareStatement(statement)) {
                 ps.setString(1,authToken);
-                ps.executeUpdate();
+                int rowsAffected = ps.executeUpdate();
+                if(rowsAffected == 0) {
+                    throw new DataAccessException("");
+                }
             }
         } catch(SQLException e) {
             throw new DataAccessException("");

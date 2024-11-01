@@ -70,7 +70,7 @@ public class SQLAuthTest {
     void getAuthNegative() throws DataAccessException {
         authDAO.createAuth(authData);
         AuthData invalidAuthData = new AuthData("invalidAuthToken", "username");
-        assertThrows(DataAccessException.class, ()->authDAO.getAuthData(invalidAuthData.authToken()));
+        assertNull(authDAO.getAuthData(invalidAuthData.authToken()));
     }
 
     @Test
@@ -91,5 +91,23 @@ public class SQLAuthTest {
     void deleteAuthTokenNegative() throws DataAccessException {
         authDAO.createAuth(authData);
         assertThrows(DataAccessException.class, ()->authDAO.deleteAuthToken("thisisabadauthToken"));
+    }
+
+    @Test
+    void clearTest() throws DataAccessException, SQLException {
+        authDAO.createAuth(authData);
+        AuthData authData1 = new AuthData("anotherToken", "anotherUsername");
+        authDAO.createAuth(authData1);
+        AuthData authData2 = new AuthData("andAnotherToken", "andAnotherUsername");
+        authDAO.createAuth(authData2);
+        authDAO.clear();
+        try(var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM auths";
+            try(var ps = conn.prepareStatement(statement)) {
+                try(var rs = ps.executeQuery()) {
+                    assertFalse(rs.next());
+                }
+            }
+        }
     }
 }
