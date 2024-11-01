@@ -56,10 +56,11 @@ public class MySQLUserDAO  implements IUserDAO{
 
     @Override
     public void clear() throws DataAccessException{
-        var statement = "TRUNCATE TABLE users";
         try(var conn = DatabaseManager.getConnection()) {
-            var ps = conn.prepareStatement(statement);
-            ps.executeUpdate();
+            var statement = "TRUNCATE TABLE users";
+            try(var ps = conn.prepareStatement(statement)) {
+                ps.executeUpdate();
+            }
         } catch(SQLException | DataAccessException e) {
             throw new DataAccessException("Failed to delete all users");
         }
