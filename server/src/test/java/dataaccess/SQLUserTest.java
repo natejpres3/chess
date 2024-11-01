@@ -82,4 +82,39 @@ public class SQLUserTest {
         }
         assertEquals(3,sizeOfList);
     }
+
+//    @Test
+//    void listUserNegative() throws DataAccessException, SQLException {
+//
+//    }
+
+    @Test
+    void validateAuthTokenPositive() throws DataAccessException {
+        userDAO.createUser(userData);
+        assertTrue(userDAO.validateAuthToken(userData.username(),userData.password()));
+    }
+
+    @Test
+    void validateAuthTokenNegative() throws DataAccessException {
+        userDAO.createUser(userData);
+        assertThrows(DataAccessException.class, ()->userDAO.validateAuthToken("wrongusername", "wrongpassword"));
+    }
+
+    @Test
+    void clearTest() throws DataAccessException, SQLException {
+        userDAO.createUser(userData);
+        UserData userData1 = new UserData("anotherUsername", "anotherPassword", "anotherEmail");
+        userDAO.createUser(userData1);
+        UserData userData2 = new UserData("andAnotherUsername", "andAnotherPassword", "andAnotheEmail");
+        userDAO.createUser(userData2);
+        userDAO.clear();
+        try(var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM users";
+            try(var ps = conn.prepareStatement(statement)) {
+                try(var rs = ps.executeQuery()) {
+                    assertFalse(rs.next());
+                }
+            }
+        }
+    }
 }
