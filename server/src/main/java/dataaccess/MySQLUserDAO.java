@@ -6,11 +6,17 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.lang.module.ResolutionException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class MySQLUserDAO  implements IUserDAO{
 
-    public MySQLUserDAO() throws DataAccessException{
-        configureDatabase();
+    public MySQLUserDAO() {
+        try {
+            configureDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -48,10 +54,33 @@ public class MySQLUserDAO  implements IUserDAO{
         return null;
     }
 
+    public Collection<UserData> listUsers() throws DataAccessException {
+        Collection<UserData> listOfUsers = new ArrayList<>();
+        try(var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM users";
+            try(var ps = conn.prepareStatement(statement)) {
+                try(var rs = ps.executeQuery()) {
+                    while(rs.next()) {
+                        var username = rs.getString("username");
+                        var password = rs.getString("password");
+                        var email = rs.getString("email");
+                        listOfUsers.add(new UserData(username,password,email));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("");
+        }
+        return listOfUsers;
+    }
+
     @Override
     public boolean validateAuthToken(String username, String password) throws DataAccessException {
         UserData userData = getUser(username);
-        return BCrypt.checkpw(password,userData.password());
+        if(userData != null) {
+            return BCrypt.checkpw(password,userData.password());
+        }
+        throw new DataAccessException("Trying to login invalid user");
     }
 
     @Override
@@ -72,7 +101,7 @@ public class MySQLUserDAO  implements IUserDAO{
             username VARCHAR(255) NOT NULL,
             password VARCHAR(255) NOT NULL,
             email VARCHAR(255),
-            PRIMARY KEY (username)
+            PRIMARY KEY (username))
             """;
 
     private void configureDatabase() throws DataAccessException {

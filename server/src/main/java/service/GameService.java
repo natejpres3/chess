@@ -11,10 +11,10 @@ import java.util.Collection;
 import java.util.HashMap;
 
 public class GameService {
-    MemoryGameDAO gameDAO;
-    MemoryAuthDAO authDAO;
+    MySQLGameDAO gameDAO;
+    MySQLAuthDAO authDAO;
 
-    public GameService(MemoryGameDAO gameDAO, MemoryAuthDAO authDAO) {
+    public GameService(MySQLGameDAO gameDAO, MySQLAuthDAO authDAO) {
         this.gameDAO = gameDAO;
         this.authDAO = authDAO;
     }
@@ -95,7 +95,7 @@ public class GameService {
     }
 
     //clear games
-    public void clear() {
+    public void clear() throws DataAccessException {
         gameDAO.clear();
     }
 }

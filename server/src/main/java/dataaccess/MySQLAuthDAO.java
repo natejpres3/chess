@@ -3,11 +3,16 @@ package dataaccess;
 import model.AuthData;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class MySQLAuthDAO implements IAuthDAO{
 
-    public MySQLAuthDAO() throws DataAccessException {
-        configureDatabase();
+    public MySQLAuthDAO() {
+        try {
+            configureDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -27,7 +32,7 @@ public class MySQLAuthDAO implements IAuthDAO{
     @Override
     public AuthData getAuthData(String authToken) throws DataAccessException {
         try(var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT (authToken, username) FROM auths WHERE authToken=?";
+            var statement = "SELECT * FROM auths WHERE authToken=?";
             try(var ps = conn.prepareStatement(statement)) {
                 ps.setString(1,authToken);
                 try(var rs = ps.executeQuery()) {
@@ -56,6 +61,27 @@ public class MySQLAuthDAO implements IAuthDAO{
         }
     }
 
+    public boolean authenicateToken(AuthData authData) throws DataAccessException {
+        try(var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT * FROM auths WHERE authToken=?";
+            try(var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authData.authToken());
+                try(var rs = ps.executeQuery()) {
+                    if(rs.next()) {
+                        return true;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("");
+        }
+        return false;
+    }
+
+    public String generateAuthToken() {
+        return UUID.randomUUID().toString();
+    }
+
     @Override
     public void clear() throws DataAccessException {
         try(var conn = DatabaseManager.getConnection()) {
@@ -71,9 +97,9 @@ public class MySQLAuthDAO implements IAuthDAO{
     private final String createStatement =
             """
             CREATE TABLE IF NOT EXISTS auths (
-            authToken VARCHAR(255) NOT NULL,
-            username VARCHAR(255) NOT NULL,
-            PRIMARY KEY (authToken)
+            `authToken` VARCHAR(255) NOT NULL,
+            `username` VARCHAR(255) NOT NULL,
+            PRIMARY KEY (authToken))
             """;
 
     private void configureDatabase() throws DataAccessException {

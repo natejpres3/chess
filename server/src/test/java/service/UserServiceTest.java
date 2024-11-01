@@ -11,10 +11,10 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
-    static UserService service = new UserService(new MemoryUserDAO(), new MemoryAuthDAO());
+    static UserService service = new UserService(new MySQLUserDAO(), new MySQLAuthDAO());
 
     @BeforeEach
-    void clear() {
+    void clear() throws DataAccessException {
         service.clear();
     }
 

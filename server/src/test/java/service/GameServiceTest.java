@@ -17,25 +17,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTest {
     static GameService service;
-    static MemoryGameDAO gameDAO;
-    static MemoryAuthDAO authDAO;
+    static MySQLGameDAO gameDAO;
+    static MySQLAuthDAO authDAO;
     static AuthData authData;
-    static MemoryUserDAO userDAO;
+    static MySQLUserDAO userDAO;
 
     GameData defaultGameData;
 
     @BeforeAll
     static void setup() throws DataAccessException {
-        gameDAO = new MemoryGameDAO();
-        authDAO = new MemoryAuthDAO();
-        userDAO = new MemoryUserDAO();
+        gameDAO = new MySQLGameDAO();
+        authDAO = new MySQLAuthDAO();
+        userDAO = new MySQLUserDAO();
         service = new GameService(gameDAO,authDAO);
         authData = new AuthData("authToken", "ninefirenine");
         authDAO.createAuth(authData);
     }
 
     @BeforeEach
-    void clear() {
+    void clear() throws DataAccessException {
         service.clear();
     }
 

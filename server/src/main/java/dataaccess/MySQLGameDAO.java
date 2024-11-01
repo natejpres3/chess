@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import model.GameData;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -93,7 +94,15 @@ public class MySQLGameDAO implements IGameDAO{
         } catch(SQLException e) {
             throw new DataAccessException("");
         }
-        return List.of();
+        return listOfGames;
+    }
+
+    public int generateGameID() throws DataAccessException {
+        int gameID = 1;
+        while(getGame(gameID) != null) {
+            gameID++;
+        }
+        return gameID;
     }
 
     @Override
@@ -116,7 +125,7 @@ public class MySQLGameDAO implements IGameDAO{
             blackUsername VARCHAR(255),
             gameName VARCHAR(255),
             game TEXT,
-            PRIMARY KEY (gameID)
+            PRIMARY KEY (gameID))
             """;
 
     private void configureDatabase() throws DataAccessException {

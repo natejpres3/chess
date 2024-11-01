@@ -18,8 +18,8 @@ import java.util.Map;
 public class Server {
 
     MySQLAuthDAO authDAO = new MySQLAuthDAO();
-    MemoryUserDAO userDAO = new MemoryUserDAO();
-    MemoryGameDAO gameDAO = new MemoryGameDAO();
+    MySQLUserDAO userDAO = new MySQLUserDAO();
+    MySQLGameDAO gameDAO = new MySQLGameDAO();
 
     private final UserService userService = new UserService(userDAO,authDAO);
     private final GameService gameService = new GameService(gameDAO,authDAO);
@@ -54,7 +54,7 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private Object clear(Request req, Response res) {
+    private Object clear(Request req, Response res) throws DataAccessException {
         userService.clear();
         gameService.clear();
         res.status(200);
