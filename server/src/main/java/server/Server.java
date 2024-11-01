@@ -10,6 +10,7 @@ import service.GameService;
 import service.UserService;
 import spark.*;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,10 +56,15 @@ public class Server {
     }
 
     private Object clear(Request req, Response res) throws DataAccessException {
-        userService.clear();
-        gameService.clear();
-        res.status(200);
-        return "{}";
+        try {
+            userService.clear();
+            gameService.clear();
+            res.status(200);
+            return "{}";
+        } catch (DataAccessException e) {
+            res.status(401);
+            return "{\"message\": \"Error: (description of error)\"}";
+        }
     }
 
     private Object register(Request req, Response res) {

@@ -31,12 +31,14 @@ public class GameServiceTest {
         userDAO = new MySQLUserDAO();
         service = new GameService(gameDAO,authDAO);
         authData = new AuthData("authToken", "ninefirenine");
-        authDAO.createAuth(authData);
+//        authDAO.createAuth(authData);
     }
 
     @BeforeEach
     void clear() throws DataAccessException {
-        service.clear();
+        gameDAO.clear();
+        authDAO.clear();
+        userDAO.clear();
     }
 
     @Test

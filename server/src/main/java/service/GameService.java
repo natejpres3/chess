@@ -26,6 +26,9 @@ public class GameService {
         AuthData authData;
         try{
             authData = authDAO.getAuthData(authToken);
+            if(authData == null) {
+                throw new DataAccessException("");
+            }
         } catch (DataAccessException e) {
             throw new UnauthorizedException("");
         }
@@ -50,6 +53,9 @@ public class GameService {
         AuthData authData;
         try{
             authData = authDAO.getAuthData(authToken);
+            if(authData == null) {
+                throw new DataAccessException("");
+            }
         } catch (DataAccessException e) {
             throw new UnauthorizedException("");
         }
@@ -87,7 +93,10 @@ public class GameService {
 
     public Collection<GameData> listGames(String authToken) throws DataAccessException {
         try {
-            authDAO.getAuthData(authToken);
+            AuthData authData = authDAO.getAuthData(authToken);
+            if(authData == null) {
+                throw new DataAccessException("");
+            }
         } catch(DataAccessException e) {
             throw new UnauthorizedException("");
         }
@@ -97,5 +106,6 @@ public class GameService {
     //clear games
     public void clear() throws DataAccessException {
         gameDAO.clear();
+//        authDAO.clear();
     }
 }

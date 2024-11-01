@@ -55,6 +55,9 @@ public class UserService {
         //find the user using the authToken and remove it from database. Otherwise throw an error.
         try {
             AuthData authData = authDAO.getAuthData(authToken);
+            if(authData == null) {
+                throw new DataAccessException("Invalid auth");
+            }
             boolean authorized = authDAO.authenicateToken(authData);
             if(!authorized) {
                 throw new DataAccessException("Error: unauthorized");

@@ -108,7 +108,7 @@ public class MySQLGameDAO implements IGameDAO{
     @Override
     public void clear() throws DataAccessException{
         try(var conn = DatabaseManager.getConnection()) {
-            var statement = "TRUNCATE TABLE games";
+            var statement = "TRUNCATE games";
             try(var ps = conn.prepareStatement(statement)) {
                 ps.executeUpdate();
             }

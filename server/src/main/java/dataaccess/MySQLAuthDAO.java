@@ -62,6 +62,9 @@ public class MySQLAuthDAO implements IAuthDAO{
     }
 
     public boolean authenicateToken(AuthData authData) throws DataAccessException {
+        if(authData == null) {
+            throw new DataAccessException("bad auth");
+        }
         try(var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM auths WHERE authToken=?";
             try(var ps = conn.prepareStatement(statement)) {
@@ -85,7 +88,7 @@ public class MySQLAuthDAO implements IAuthDAO{
     @Override
     public void clear() throws DataAccessException {
         try(var conn = DatabaseManager.getConnection()) {
-            var statement = "TRUNCATE TABLE auths";
+            var statement = "TRUNCATE auths";
             try(var ps = conn.prepareStatement(statement)) {
                 ps.executeUpdate();
             }
