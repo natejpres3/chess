@@ -33,11 +33,7 @@ public class StandardAPITests {
 
     @BeforeAll
     public static void init() {
-//        try {
         server = new Server();
-//        } catch (DataAccessException e) {
-//            throw new RuntimeException(e);
-//        }
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
 
