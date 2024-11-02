@@ -12,8 +12,12 @@ import java.util.List;
 
 public class MySQLGameDAO implements IGameDAO{
 
-    public MySQLGameDAO() throws DataAccessException {
-        configureGameDatabase();
+    public MySQLGameDAO() {
+        try {
+            configureGameDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

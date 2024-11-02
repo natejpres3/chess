@@ -25,7 +25,7 @@ public class Server {
     private final UserService userService = new UserService(userDAO,authDAO);
     private final GameService gameService = new GameService(gameDAO,authDAO);
 
-    public Server() throws DataAccessException {
+    public Server() {
     }
 
     public int run(int desiredPort) {
