@@ -9,7 +9,7 @@ public class MySQLAuthDAO implements IAuthDAO{
 
     public MySQLAuthDAO() {
         try {
-            configureDatabase();
+            configureAuthDatabase();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -108,7 +108,7 @@ public class MySQLAuthDAO implements IAuthDAO{
             PRIMARY KEY (authToken))
             """;
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureAuthDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()) {
             try(var preparedStatement = conn.prepareStatement(createStatement)) {

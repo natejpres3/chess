@@ -13,7 +13,7 @@ import java.util.List;
 public class MySQLGameDAO implements IGameDAO{
 
     public MySQLGameDAO() throws DataAccessException {
-        configureDatabase();
+        configureGameDatabase();
     }
 
     @Override
@@ -131,7 +131,7 @@ public class MySQLGameDAO implements IGameDAO{
             PRIMARY KEY (gameID))
             """;
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureGameDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()) {
             try(var preparedStatement = conn.prepareStatement(createStatement)) {

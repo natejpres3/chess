@@ -73,12 +73,6 @@ public class UserService {
     }
 
     public boolean validateAuthToken(UserData userData) throws DataAccessException{
-//        boolean valid = userDAO.validateAuthToken(userData.username(),userData.password());
-//        if(valid) {
-//            return true;
-//        } else {
-//            throw new DataAccessException("Invalid authToken");
-//        }
         if(userData.password() != null && userData.username() != null) {
             return userDAO.validateAuthToken(userData.username(), userData.password());
         }

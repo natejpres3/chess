@@ -13,7 +13,7 @@ public class MySQLUserDAO  implements IUserDAO{
 
     public MySQLUserDAO() {
         try {
-            configureDatabase();
+            configureUserDatabase();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -104,7 +104,7 @@ public class MySQLUserDAO  implements IUserDAO{
             PRIMARY KEY (username))
             """;
 
-    private void configureDatabase() throws DataAccessException {
+    private void configureUserDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()) {
             try(var preparedStatement = conn.prepareStatement(createStatement)) {
@@ -119,12 +119,4 @@ public class MySQLUserDAO  implements IUserDAO{
         String encryptedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
         return encryptedPassword;
     }
-
-//    boolean verifyUser(String username, String providedClearTextPassword) {
-//        // read the previously hashed password from the database
-////        var hashedPassword = readHashedPasswordFromDatabase(username);
-//
-//        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
-//    }
-
 }
