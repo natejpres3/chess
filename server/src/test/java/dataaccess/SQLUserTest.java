@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,6 +70,7 @@ public class SQLUserTest {
         userDAO.createUser(userData1);
         UserData userData2 = new UserData("andAnotherUsername", "andAnotherPassword", "andAnotheEmail");
         userDAO.createUser(userData2);
+        Collection<UserData> userList = userDAO.listUsers();
         int sizeOfList = 0;
         try(var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT * FROM users";
@@ -80,13 +82,14 @@ public class SQLUserTest {
                 }
             }
         }
-        assertEquals(3,sizeOfList);
+        assertEquals(userList.size(),sizeOfList);
     }
 
-//    @Test
-//    void listUserNegative() throws DataAccessException, SQLException {
-//
-//    }
+    @Test
+    void listUserNegative() throws DataAccessException, SQLException {
+        Collection<UserData> listOfUsers = userDAO.listUsers();
+        assertEquals(0, listOfUsers.size());
+    }
 
     @Test
     void validateAuthTokenPositive() throws DataAccessException {

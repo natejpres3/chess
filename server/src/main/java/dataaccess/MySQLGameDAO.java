@@ -67,7 +67,10 @@ public class MySQLGameDAO implements IGameDAO{
                 var json = new Gson().toJson(gameData.game());
                 ps.setString(4, json);
                 ps.setInt(5, gameID);
-                ps.executeUpdate();
+                int rowsAffected = ps.executeUpdate();
+                if(rowsAffected == 0) {
+                    throw new DataAccessException("");
+                }
             }
         } catch(SQLException e) {
             throw new DataAccessException("");

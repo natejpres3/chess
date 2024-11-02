@@ -25,16 +25,6 @@ public class SQLAuthTest {
         }
     }
 
-    @AfterEach
-    void clearDB() throws DataAccessException, SQLException {
-        try(var conn = DatabaseManager.getConnection()) {
-            var statement = "TRUNCATE auths";
-            try(var ps = conn.prepareStatement(statement)) {
-                ps.executeUpdate();
-            }
-        }
-    }
-
     @Test
     void createAuthPositive() throws DataAccessException, SQLException {
         AuthData retrievedAuthData;
