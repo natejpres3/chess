@@ -100,7 +100,7 @@ public class MySQLAuthDAO implements IAuthDAO{
         }
     }
 
-    private final String createStatement =
+    private final String createAuthStatement =
             """
             CREATE TABLE IF NOT EXISTS auths (
             `authToken` VARCHAR(255) NOT NULL,
@@ -111,7 +111,7 @@ public class MySQLAuthDAO implements IAuthDAO{
     private void configureAuthDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()) {
-            try(var preparedStatement = conn.prepareStatement(createStatement)) {
+            try(var preparedStatement = conn.prepareStatement(createAuthStatement)) {
                 preparedStatement.executeUpdate();
             }
         } catch(SQLException e) {

@@ -95,7 +95,7 @@ public class MySQLUserDAO  implements IUserDAO{
         }
     }
 
-    private final String createStatement =
+    private final String createUserStatement =
             """
             CREATE TABLE IF NOT EXISTS users (
             username VARCHAR(255) NOT NULL,
@@ -107,7 +107,7 @@ public class MySQLUserDAO  implements IUserDAO{
     private void configureUserDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()) {
-            try(var preparedStatement = conn.prepareStatement(createStatement)) {
+            try(var preparedStatement = conn.prepareStatement(createUserStatement)) {
                 preparedStatement.executeUpdate();
             }
         } catch(SQLException e) {

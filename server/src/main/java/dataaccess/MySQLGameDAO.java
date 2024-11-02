@@ -120,7 +120,7 @@ public class MySQLGameDAO implements IGameDAO{
         }
     }
 
-    private final String createStatement =
+    private final String createGameStatement =
             """
             CREATE TABLE IF NOT EXISTS games (
             gameID int NOT NULL,
@@ -134,7 +134,7 @@ public class MySQLGameDAO implements IGameDAO{
     private void configureGameDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()) {
-            try(var preparedStatement = conn.prepareStatement(createStatement)) {
+            try(var preparedStatement = conn.prepareStatement(createGameStatement)) {
                 preparedStatement.executeUpdate();
             }
         } catch(SQLException e) {
