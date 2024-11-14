@@ -1,5 +1,6 @@
 package ui;
 
+import model.AuthData;
 import model.GameData;
 import model.UserData;
 import server.ServerFacade;
@@ -20,40 +21,49 @@ public class UserClient {
         this.serverUrl = serverUrl;
     }
 
-    public void eval(String input) {
+    public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             if(!isLoggedIn) {
-                switch(cmd) {
-                    case "login" -> login(params);
+                return switch(cmd) {
+//                    case "login" -> login(params);
                     case "register" -> register(params);
+                    case "quit" -> "quit";
                     default -> loggedOutHelp();
                 };
             } else {
-                switch(cmd) {
-                    case "create" -> createGame(params);
+                return switch(cmd) {
+//                    case "create" -> createGame(params);
+                    default -> loggedInHelp();
                 };
             }
 
         } catch(Exception e) {
-
+            return e.getMessage();
         }
     }
 
-    public void register(String... params) throws Exception {
+    public String register(String... params) throws Exception {
+        String result = "";
         if(params.length != 3) {
-            System.out.println("Please provide your username, password, and email");
-            System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
-        } else if(server.register(new UserData(params[0], params[1], params[2])) != null) {
-            System.out.println("You are registerd and logged in as " + params[0]);
-
-            isLoggedIn = true;
-        } else {
-            System.out.println("The username you chose is already in use, choose another");
-            System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
+            return """
+                    Please provide your username, password, and email
+                    register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                    """;
         }
+        AuthData authData = server.register(new UserData(params[0], params[1], params[2]));
+        if(authData != null) {
+            isLoggedIn = true;
+            result = String.format("You are registered and logged in as %s", params[0]);
+        } else {
+            result = """
+                    The username you chose is already in use, choose another
+                    register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                    """;
+        }
+        return result;
     }
 
     public void login(String... params) throws Exception {
@@ -68,22 +78,26 @@ public class UserClient {
         }
     }
 
-    public void loggedOutHelp() {
-        System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
-        System.out.println("login <USERNAME> <PASSWORD> - to play chess");
-        System.out.println("quit - playing chess");
-        System.out.println("help - with possible commands");
+    public String loggedOutHelp() {
+        return """
+                - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                - login <USERNAME> <PASSWORD> - to play chess
+                - quit - playing chess
+                - help - with possible commands
+                """;
     }
 
     //logged in methods
-    public void loggedInHelp() {
-        System.out.println("create <NAME> - a game");
-        System.out.println("list - games");
-        System.out.println("join <ID> [WHITE|BLACK] - a game");
-        System.out.println("observe <ID> - a game");
-        System.out.println("logout - when you are done");
-        System.out.println("quit - playing chess");
-        System.out.println("help - with possible commands");
+    public String loggedInHelp() {
+        return """
+                - create <NAME> - a game
+                - list - games
+                - join <ID> [WHITE|BLACK] - a game
+                - observe <ID> - a game
+                - logout - when you are done
+                - quit - playing chess
+                - help - with possible commands
+                """;
     }
 
     public void logout() throws Exception {
@@ -136,6 +150,14 @@ public class UserClient {
             String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "None";
             System.out.printf("%d. Game name: %s, White user: %s, Black user: %s %n", i, game.gameName(), whiteUser, blackUser);
         }
+    }
+
+    public boolean getIsLoggedIn() {
+        return isLoggedIn;
+    }
+
+    public void clear() throws Exception {
+        server.clearAll();
     }
 
 }
