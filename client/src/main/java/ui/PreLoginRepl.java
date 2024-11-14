@@ -20,6 +20,7 @@ public class PreLoginRepl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while(result == null || !result.equals("quit")) {
+            
             String line = scanner.nextLine();
 
             try{
@@ -28,7 +29,7 @@ public class PreLoginRepl {
                     System.out.print(result);
                 }
             } catch(Exception e) {
-
+                System.out.println("User already registered");
             }
         }
         if(client.getIsLoggedIn()) {

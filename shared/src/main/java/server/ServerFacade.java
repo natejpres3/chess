@@ -21,46 +21,52 @@ public class ServerFacade {
 
     public AuthData register(UserData userData) throws Exception {
         var path = "/user";
-        return makeRequest("POST", path, userData, AuthData.class);
+        return makeRequest("POST", path, userData, AuthData.class,null);
     }
 
     public void clearAll() throws Exception {
         var path = "/db";
-        this.makeRequest("DELETE", path, null, null);
+        this.makeRequest("DELETE", path, null, null, null);
     }
 
     //maybe change response class
     public Collection<GameData> listGames() throws Exception{
         var path = "/game";
-        return makeRequest("GET", path, null, listGames().getClass());
+        return makeRequest("GET", path, null, listGames().getClass(), null);
     }
 
     public AuthData login(UserData userData) throws Exception {
         var path = "/session";
-        return makeRequest("POST", path, userData, AuthData.class);
+        return makeRequest("POST", path, userData, AuthData.class, null);
     }
 
     public void logout(String authToken) throws Exception {
         var path = "/session";
-        makeRequest("DELETE", path, authToken, null);
+        makeRequest("DELETE", path, null, null, authToken);
     }
 
     public int createGame(String authToken, GameData gameData) throws Exception {
         var path = "/game";
-        return makeRequest("POST", path, gameData, int.class);
+        return makeRequest("POST", path, gameData, int.class, authToken);
     }
 
     public void joinGame() {
 
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws Exception {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws Exception {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
-            http.setDoOutput(true);
-            writeBody(request, http);
+            if(authToken != null && !authToken.isEmpty()) {
+                http.setRequestProperty("Authorization", authToken);
+            }
+            //only write the body if request is not null
+            if(request != null) {
+                http.setDoOutput(true);
+                writeBody(request, http);
+            }
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
@@ -71,7 +77,6 @@ public class ServerFacade {
 
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if(request != null) {
-            http.setDoOutput(true);
             http.addRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);
             try (OutputStream reqBody = http.getOutputStream()) {

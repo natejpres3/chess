@@ -28,14 +28,15 @@ public class UserClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             if(!isLoggedIn) {
                 return switch(cmd) {
-//                    case "login" -> login(params);
                     case "register" -> register(params);
+                    case "login" -> login(params);
                     case "quit" -> "quit";
                     default -> loggedOutHelp();
                 };
             } else {
                 return switch(cmd) {
 //                    case "create" -> createGame(params);
+                    case "logout" -> logout();
                     case "quit" -> "quit";
                     default -> loggedInHelp();
                 };
@@ -49,13 +50,16 @@ public class UserClient {
     public String register(String... params) throws Exception {
         String result = "";
         if(params.length != 3) {
-            result = """
+            return """
                     Please provide your username, password, and email
                     register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                     """;
-        } else if(server.register(new UserData(params[0], params[1], params[2])) != null) {
+        }
+        AuthData authData = server.register(new UserData(params[0], params[1], params[2]));
+        if(authData != null) {
             isLoggedIn = true;
-            result = String.format("You are registered and logged in as %s", params[0]);
+            authToken = authData.authToken();
+            result = String.format("You are registered and logged in as %s %n", params[0]);
         } else {
             result = """
                     The username you chose is already in use, choose another
@@ -65,15 +69,20 @@ public class UserClient {
         return result;
     }
 
-    public void login(String... params) throws Exception {
+    public String login(String... params) throws Exception {
         if(params.length != 2) {
-            System.out.println("Please provide a username and password");
-            System.out.println("login <USERNAME> <PASSWORD> - to play chess");
-        } else if(server.login(new UserData(params[0],params[1], null)) != null) {
-            System.out.println("You are logged in as " + params[0]);
+            return """
+                    Please provide a username and password
+                    login <USERNAME> <PASSWORD> - to play chess
+                    """;
+        }
+        AuthData authData = server.login(new UserData(params[0],params[1], null));
+        if(authData != null) {
             isLoggedIn = true;
+            authToken = authData.authToken();
+            return String.format("You are logged in as %s %n", params[0]);
         } else {
-            System.out.println("Username or password are incorrect, try again");
+            return "Username or password are incorrect, try again";
         }
     }
 
@@ -99,13 +108,13 @@ public class UserClient {
                 """;
     }
 
-    public void logout() throws Exception {
+    public String logout() throws Exception {
         if(isLoggedIn == true) {
             server.logout(authToken);
             isLoggedIn = false;
-            System.out.println("You are signed out");
+            return String.format("You are signed out %n");
         } else {
-            throw new Exception("You must sign in");
+            return String.format("You must sign in %n");
         }
     }
 
