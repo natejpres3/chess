@@ -51,7 +51,7 @@ public class ServerFacade {
     }
 
     public void joinGame() {
-        
+
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws Exception {
