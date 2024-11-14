@@ -16,7 +16,7 @@ public class PreLoginRepl {
 
     public void run() {
         System.out.println("Welcome! Sign in to start playing some chess.");
-        client.loggedOutHelp();
+        System.out.println(client.loggedOutHelp());
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while(result == null || !result.equals("quit")) {

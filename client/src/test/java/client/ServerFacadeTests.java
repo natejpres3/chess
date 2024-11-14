@@ -5,6 +5,7 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
+import ui.PreLoginRepl;
 import ui.UserClient;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -98,4 +99,12 @@ public class ServerFacadeTests {
     void clearTest() throws Exception {
 
     }
+
+//    @Test
+//    void reg() throws Exception {
+//        preLoginRepl.run();
+//        String input = "Register nate nate nate";
+//        var result = client.eval(input);
+//        var res = client.eval("help");
+//    }
 }
