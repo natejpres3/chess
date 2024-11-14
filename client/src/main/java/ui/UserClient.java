@@ -4,13 +4,16 @@ import model.GameData;
 import model.UserData;
 import server.ServerFacade;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 public class UserClient {
     private final ServerFacade server;
     private final String serverUrl;
     private String authToken;
     private boolean isLoggedIn = false;
+    private ArrayList<GameData> gameList;
 
     public UserClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -76,8 +79,8 @@ public class UserClient {
     public void loggedInHelp() {
         System.out.println("create <NAME> - a game");
         System.out.println("list - games");
-        System.out.println("join <ID> - a game");
-        System.out.println("observe <ID> [WHITE|BLACK] - a game");
+        System.out.println("join <ID> [WHITE|BLACK] - a game");
+        System.out.println("observe <ID> - a game");
         System.out.println("logout - when you are done");
         System.out.println("quit - playing chess");
         System.out.println("help - with possible commands");
@@ -102,6 +105,37 @@ public class UserClient {
         }
     }
 
-    
+    public void listGames() throws Exception {
+        if(isLoggedIn) {
+            gameList = getListOfGames();
+            printListOfGames(gameList);
+        } else {
+            throw new Exception("You must be signed in");
+        }
+    }
+
+    public void playGame(String... params) throws Exception {
+        gameList = getListOfGames();
+        if(gameList.isEmpty()) {
+            System.out.println("First create the game");
+        }
+        if(params.length != 2 || !params[0].matches("\\d+") || !params[1].toLowerCase().matches("WHITE|BLACK")) {
+            System.out.println("Provide a game ID and the color you would like to play");
+        }
+    }
+
+    private ArrayList<GameData> getListOfGames() throws Exception {
+        Collection<GameData> listOfGames = server.listGames();
+        return new ArrayList<>(listOfGames);
+    }
+
+    private void printListOfGames(ArrayList<GameData> gameList) {
+        for(int i=1; i< gameList.size()+1; i++) {
+            GameData game = gameList.get(i);
+            String blackUser = game.blackUsername() != null ? game.blackUsername() : "None";
+            String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "None";
+            System.out.printf("%d. Game name: %s, White user: %s, Black user: %s %n", i, game.gameName(), whiteUser, blackUser);
+        }
+    }
 
 }
