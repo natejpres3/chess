@@ -13,114 +13,48 @@ public class RenderBoard {
     public static void main(String[] args) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        drawBoard(out);
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
+        drawBoard(out, false);
+        out.println();
+        drawBoard(out, true);
     }
 
-    private static void drawBoard(PrintStream out) {
-        for(int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-            drawRow(out, boardRow);
-            if(boardRow < BOARD_SIZE_IN_SQUARES-1) {
-                drawHorizontal(out);
-                setBlack(out);
+    private static void drawBoard(PrintStream out, boolean isWhite) {
+        String[][] board = initBoard(isWhite);
+        for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
+            drawRowSquares(out, board[boardRow], boardRow);
+        }
+        out.println(RESET_BG_COLOR);
+    }
+
+    private static String[][] initBoard(boolean isWhite) {
+        String[][] board = new String[BOARD_SIZE_IN_SQUARES][BOARD_SIZE_IN_SQUARES];
+        //put in pieces
+        if (isWhite) {
+            board[7] = new String[]{WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK};
+            board[6] = new String[]{WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN};
+            board[1] = new String[]{BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN};
+            board[0] = new String[]{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK};
+        } else {
+            board[0] = new String[]{WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK};
+            board[1] = new String[]{WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN};
+            board[6] = new String[]{BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN};
+            board[7] = new String[]{BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK};
+        }
+        //put in empties
+        for (int i = 2; i < 6; i++) {
+            for (int j = 0; j < BOARD_SIZE_IN_SQUARES; j++) {
+                board[i][j] = "   ";
             }
         }
+        return board;
     }
 
-    private static void drawRow(PrintStream out, int boardRow) {
-        for(int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
-            for(int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-                setWhite(out);
-                if(squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
-                    int preLength = SQUARE_SIZE_IN_PADDED_CHARS / 2;
-                    int suffLength = SQUARE_SIZE_IN_PADDED_CHARS - preLength - 1;
-
-                    out.print(EMPTY.repeat(preLength));
-
-                    if(boardRow == 0 || boardRow == 7) {
-                        out.print(getPieces(boardRow, boardCol));
-                    } else if(boardRow == 1 || boardRow == 6) {
-                        out.print(boardRow == 1 ? WHITE_PAWN : BLACK_PAWN);
-                    } else {
-                        out.print(EMPTY);
-                    }
-                    out.print(EMPTY.repeat(suffLength));
-                } else {
-                    out.print(EMPTY.repeat(SQUARE_SIZE_IN_PADDED_CHARS));
-                }
-                //set vertical separators
-                if(boardCol < BOARD_SIZE_IN_SQUARES - 1) {
-                    setRed(out);
-                    out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
-                }
-                setBlack(out);
-            }
-            out.println();
+    private static void drawRowSquares(PrintStream out, String[] row, int rowInd) {
+        for (int col = 0; col < BOARD_SIZE_IN_SQUARES; col++) {
+            boolean isBlackSquare = (rowInd + col) % 2 == 0;
+            String bgColor = isBlackSquare ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
+            out.print(bgColor + " " + row[col] + " " + RESET_BG_COLOR);
         }
-    }
-
-    private static void drawHorizontal(PrintStream out) {
-        int spacesBoardSize = BOARD_SIZE_IN_SQUARES * SQUARE_SIZE_IN_PADDED_CHARS +
-                (BOARD_SIZE_IN_SQUARES - 1) * LINE_WIDTH_IN_PADDED_CHARS;
-        for(int lineRow = 0; lineRow < LINE_WIDTH_IN_PADDED_CHARS; ++lineRow) {
-            setRed(out);
-            out.print(EMPTY.repeat(spacesBoardSize));
-            setBlack(out);
-            out.println();
-        }
-    }
-
-    private static String getPieces(int row, int col) {
-        if(row == 0) {
-            switch (col) {
-                case 0:
-                case 7:
-                    return BLACK_ROOK;
-                case 1:
-                case 6:
-                    return BLACK_KNIGHT;
-                case 2:
-                case 5:
-                    return BLACK_BISHOP;
-                case 3:
-                    return BLACK_QUEEN;
-                case 4:
-                    return BLACK_KING;
-            }
-        }
-        if(row == 7) {
-            switch (col) {
-                case 0:
-                case 7:
-                    return WHITE_ROOK;
-                case 1:
-                case 6:
-                    return WHITE_KNIGHT;
-                case 2:
-                case 5:
-                    return WHITE_BISHOP;
-                case 3:
-                    return WHITE_QUEEN;
-                case 4:
-                    return WHITE_KING;
-            }
-        }
-        return EMPTY;
-    }
-
-    private static void setWhite(PrintStream out) {
-        out.print(SET_BG_COLOR_WHITE);
-        out.print(SET_TEXT_COLOR_WHITE);
-    }
-
-    private static void setRed(PrintStream out) {
-        out.print(SET_BG_COLOR_RED);
-        out.print(SET_TEXT_COLOR_RED);
-    }
-
-    private static void setBlack(PrintStream out) {
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_BLACK);
+        out.println();
     }
 }
