@@ -30,9 +30,9 @@ public class ServerFacade {
     }
 
     //maybe change response class
-    public Collection<GameData> listGames() throws Exception{
+    public Collection<GameData> listGames(String authToken) throws Exception{
         var path = "/game";
-        return makeRequest("GET", path, null, listGames().getClass(), null);
+        return makeRequest("GET", path, null, Collection.class, authToken);
     }
 
     public AuthData login(UserData userData) throws Exception {
@@ -47,11 +47,18 @@ public class ServerFacade {
 
     public int createGame(String authToken, GameData gameData) throws Exception {
         var path = "/game";
-        return makeRequest("POST", path, gameData, int.class, authToken);
+        return makeRequest("POST", path, gameData, Integer.class, authToken);
     }
 
-    public void joinGame() {
+    public void joinGame(Integer gameID, String playerColor, String authToken) {
+//        var path = "/game";
+//        makeRequest("PUT", path, null, null,authToken);
+//        return "";
+    }
 
+    public void observeGame(String authToken, int gameIndex) throws Exception {
+        var path = "/game";
+        makeRequest("PUT", path, null, null, authToken);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws Exception {

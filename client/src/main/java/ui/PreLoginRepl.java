@@ -20,7 +20,8 @@ public class PreLoginRepl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while(result == null || !result.equals("quit")) {
-            
+            String loginStatus = client.getIsLoggedIn() ? "[LOGGED_IN] >>> " : "[LOGGED_OUT] >>> ";
+            System.out.print(loginStatus);
             String line = scanner.nextLine();
 
             try{

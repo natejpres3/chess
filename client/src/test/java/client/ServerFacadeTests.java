@@ -1,6 +1,7 @@
 package client;
 
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -77,17 +78,21 @@ public class ServerFacadeTests {
 
     @Test
     void createGameSuccess() throws Exception {
-
+        AuthData authData = facade.register(new UserData("user", "pass", "gmail"));
+        GameData gameData = new GameData(0,null,null,"newGame", null);
+        assertDoesNotThrow(() -> facade.createGame(authData.authToken(),gameData));
     }
 
     @Test
     void createGameFailure() throws Exception {
-
+        assertThrows(Exception.class, ()->facade.createGame("randomAuth", new GameData(0,null,null,"new", null)));
     }
 
     @Test
     void joinGameSuccess() throws Exception {
-
+        AuthData authData = facade.register(new UserData("user", "pass", "gmail"));
+        GameData gameData = new GameData(0,null,null,"newGame", null);
+        assertDoesNotThrow(facade.joinGame());
     }
 
     @Test
@@ -99,12 +104,4 @@ public class ServerFacadeTests {
     void clearTest() throws Exception {
 
     }
-
-//    @Test
-//    void reg() throws Exception {
-//        preLoginRepl.run();
-//        String input = "Register nate nate nate";
-//        var result = client.eval(input);
-//        var res = client.eval("help");
-//    }
 }
