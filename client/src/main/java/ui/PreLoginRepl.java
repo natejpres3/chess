@@ -6,12 +6,12 @@ import java.util.Scanner;
 
 public class PreLoginRepl {
     private final UserClient client;
-    private PostLoginRepl postLoginRepl;
+//    private final PostLoginRepl postLoginRepl;
     private ServerFacade serverFacade;
 
     public PreLoginRepl(String serverUrl) {
         client = new UserClient(serverUrl);
-//        postLoginRepl = new PostLoginRepl();
+//        postLoginRepl = new PostLoginRepl(serverUrl);
     }
 
     public void run() {
@@ -19,18 +19,20 @@ public class PreLoginRepl {
         client.loggedOutHelp();
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while(!result.equals("quit")) {
+        while(result == null || !result.equals("quit")) {
             String line = scanner.nextLine();
 
             try{
                 result = client.eval(line);
-                System.out.print(result);
+                if(result != null) {
+                    System.out.print(result);
+                }
             } catch(Exception e) {
 
             }
         }
         if(client.getIsLoggedIn()) {
-
+//            postLoginRepl.run();
         }
         System.out.println();
     }

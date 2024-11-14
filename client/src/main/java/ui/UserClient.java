@@ -36,6 +36,7 @@ public class UserClient {
             } else {
                 return switch(cmd) {
 //                    case "create" -> createGame(params);
+                    case "quit" -> "quit";
                     default -> loggedInHelp();
                 };
             }
@@ -48,13 +49,11 @@ public class UserClient {
     public String register(String... params) throws Exception {
         String result = "";
         if(params.length != 3) {
-            return """
+            result = """
                     Please provide your username, password, and email
                     register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                     """;
-        }
-        AuthData authData = server.register(new UserData(params[0], params[1], params[2]));
-        if(authData != null) {
+        } else if(server.register(new UserData(params[0], params[1], params[2])) != null) {
             isLoggedIn = true;
             result = String.format("You are registered and logged in as %s", params[0]);
         } else {
@@ -103,6 +102,7 @@ public class UserClient {
     public void logout() throws Exception {
         if(isLoggedIn == true) {
             server.logout(authToken);
+            isLoggedIn = false;
             System.out.println("You are signed out");
         } else {
             throw new Exception("You must sign in");

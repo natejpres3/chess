@@ -1,22 +1,29 @@
 package client;
 
+import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
+import server.ServerFacade;
 import ui.UserClient;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ServerFacadeTests {
 
     private static Server server;
     static UserClient client;
+    private static ServerFacade facade;
+    private static String url;
 
     @BeforeAll
     public static void init() {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        var url = "http://localhost:" + port;
+        url = "http://localhost:" + port;
         client = new UserClient(url);
+        facade = new ServerFacade(url);
     }
 
     @AfterAll
@@ -30,14 +37,65 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void registerSuccess() {
-        String params =
-        client.register()
+    void registerSuccess() throws Exception {
+        AuthData authData = facade.register(new UserData("njp", "pass", "njp@g"));
+        assertEquals(authData.username(), "njp");
+        assertNotNull(authData.authToken());
     }
 
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    void registerFailure() throws Exception {
+        facade.register(new UserData("njp", "pass", "njp@g"));
+        assertThrows(Exception.class, ()->facade.register(new UserData("njp", "pass", "njp@g")));
     }
 
+    @Test
+    void loginSuccess() throws Exception {
+        facade.register(new UserData("njp", "pass", "njp@g"));
+        AuthData authData = facade.login(new UserData("njp", "pass", "njp@g"));
+        assertEquals(authData.username(),"njp");
+        assertNotNull(authData.authToken());
+    }
+
+    @Test
+    void loginFailure() throws Exception {
+        facade.register(new UserData("njp", "pass", "njp@g"));
+        assertThrows(Exception.class, ()->facade.login(new UserData("njp", "wrongpass", "njp@g")));
+    }
+
+    @Test
+    void logoutSuccess() throws Exception {
+        AuthData authData = facade.register(new UserData("njp", "pass", "njp@g"));
+        assertDoesNotThrow(()->facade.logout(authData.authToken()));
+    }
+
+    @Test
+    void logoutFailure() throws Exception {
+        assertThrows(Exception.class, ()->facade.logout("randomAuth"));
+    }
+
+    @Test
+    void createGameSuccess() throws Exception {
+
+    }
+
+    @Test
+    void createGameFailure() throws Exception {
+
+    }
+
+    @Test
+    void joinGameSuccess() throws Exception {
+
+    }
+
+    @Test
+    void joinGameFailure() throws Exception {
+
+    }
+
+    @Test
+    void clearTest() throws Exception {
+
+    }
 }
