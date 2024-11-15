@@ -139,7 +139,8 @@ public class Server {
         JoinGameData joinGameData = new Gson().fromJson(req.body(),JoinGameData.class);
 
         try {
-            gameService.joinGame(authToken,joinGameData.playerColor, joinGameData.gameID);
+            String playColor = joinGameData.playerColor == null ? null : (joinGameData.playerColor).toUpperCase();
+            gameService.joinGame(authToken, playColor, joinGameData.gameID);
             res.status(200);
             return "{}";
         } catch(BadRequestException e) {
@@ -162,9 +163,10 @@ public class Server {
         try {
             Collection<GameData> games = gameService.listGames(authToken);
             res.status(200);
-            Map<String, Collection<GameData>> result = new HashMap<>();
-            result.put("games", games);
-            return new Gson().toJson(new listGameResponse(result));
+//            Map<String, Collection<GameData>> result = new HashMap<>();
+//            result.put("games", games);
+//            return new Gson().toJson(result);
+            return new Gson().toJson(new listGameResponse(games));
         } catch (UnauthorizedException e) {
             res.status(401);
             return "{\"message\": \"Error: unauthorized\"}";

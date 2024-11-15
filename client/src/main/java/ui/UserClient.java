@@ -39,11 +39,11 @@ public class UserClient {
                 };
             } else {
                 return switch(cmd) {
-//                    case "create" -> createGame(params);
                     case "logout" -> logout();
                     case "create" -> createGame(params);
                     case "list" -> listGames();
                     case "join" -> playGame(params);
+                    case "observe" -> observeGame(params);
                     default -> loggedInHelp();
                 };
             }
@@ -148,12 +148,17 @@ public class UserClient {
 
     public String listGames() throws Exception {
         if(isLoggedIn) {
-            gameList = server.listGames(authToken);
-            String result = printableLists();
-            return result;
+            try {
+                gameList = server.listGames(authToken);
+                String result = printableLists();
+                return result;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         } else {
             return String.format("You must be signed in. %n");
         }
+        return "";
     }
 
     private String printableLists() throws Exception {
@@ -163,7 +168,7 @@ public class UserClient {
             GameData game = gameList.get(i);
             String blackUser = game.blackUsername() != null ? game.blackUsername() : "None";
             String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "None";
-            String temp = String.format("-- %d. BlackUser: %s, WhiteUser: %s %n", i+1,blackUser,whiteUser);
+            String temp = String.format("-- %d. GameName: %s, BlackUser: %s, WhiteUser: %s %n", i+1,game.gameName(), blackUser,whiteUser);
             answer += temp;
         }
         return answer;
@@ -173,29 +178,28 @@ public class UserClient {
         if(gameList.isEmpty()) {
             return String.format("First create the game %n");
         }
-        if(params.length != 2 || !params[0].matches("\\d+") || !params[1].toLowerCase().matches("WHITE|BLACK")) {
+        if(params.length != 2 || !params[0].matches("\\d+") || !params[1].toUpperCase().matches("WHITE|BLACK")) {
             return String.format("Provide a game ID and the color you would like to play %n");
         }
         try {
             server.joinGame(gameIndex.get(Integer.parseInt(params[0])), params[1], authToken);
             RenderBoard.main();
-            return String.format("You've joined the game. Play well");
+            return String.format("You've joined the game. Play well %n");
         } catch (Exception e) {
             return String.format("You can't join the game as that color. List games to see games and open colors. %n");
         }
     }
 
-//    public String joinGame(String... params) throws Exception {
-//        if(params.length != 2) {
-//            return """
-//                    Provide a game number and desired color
-//                    join <ID> [BLACK|WHITE] - a game
-//                    """;
-//        }
-//        try {
-//
-//        }
-//    }
+    public String observeGame(String... params) throws Exception {
+        if(params.length != 1) {
+            return """
+                    Provide a game number
+                    observe <ID> - a game
+                    """;
+        }
+        RenderBoard.main();
+        return String.format("You are observing the game");
+    }
 
     public boolean getIsLoggedIn() {
         return isLoggedIn;

@@ -94,22 +94,27 @@ public class ServerFacadeTests {
     @Test
     void joinGameSuccess() throws Exception {
         AuthData authData = facade.register(new UserData("user", "pass", "gmail"));
-        GameData gameData = new GameData(0,null,null,"newGame", null);
-        //assertDoesNotThrow(facade.joinGame());
+        GameData gameData = new GameData(1,null,null,"newGame", null);
+        int gameID = facade.createGame(authData.authToken(), gameData);
+        assertDoesNotThrow(()->facade.joinGame(gameData.gameID(),"BLACK", authData.authToken()));
     }
 
     @Test
     void joinGameFailure() throws Exception {
-
+        assertThrows(Exception.class, ()->facade.joinGame(0,"BLACK", "wrongAuth"));
     }
 
     @Test
     void listGamesSuccess() throws Exception {
-        ArrayList<GameData> listOfGames = facade.listGames(client.getAuthToken());
+        AuthData authData = facade.register(new UserData("user", "pass", "gmail"));
+        GameData gameData = new GameData(0,null,null,"newGame", null);
+        facade.createGame(authData.authToken(), gameData);
+        ArrayList<GameData> listOfGames = facade.listGames(authData.authToken());
+        assertTrue(listOfGames.size() == 1);
     }
 
     @Test
-    void clearTest() throws Exception {
-
+    void listGamesFailure() throws Exception {
+        assertThrows(Exception.class, ()->facade.listGames("wrongAuth"));
     }
 }

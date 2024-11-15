@@ -8,10 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 public class ServerFacade {
     private final String serverUrl;
@@ -33,8 +30,11 @@ public class ServerFacade {
     //maybe change response class
     public ArrayList<GameData> listGames(String authToken) throws Exception{
         var path = "/game";
+//        listGameResponse listResponse = makeRequest("GET", path, null, listGameResponse.class, authToken);
+//        Collection<GameData> collectionList = listResponse.listGames().get("games");
+//        return (ArrayList<GameData>) collectionList;
         listGameResponse listResponse = makeRequest("GET", path, null, listGameResponse.class, authToken);
-        Collection<GameData> collectionList = listResponse.listGames().get("games");
+        Collection<GameData> collectionList = (Collection<GameData>) listResponse.games();
         return (ArrayList<GameData>) collectionList;
     }
 
@@ -55,7 +55,8 @@ public class ServerFacade {
 
     public void joinGame(Integer gameID, String playerColor, String authToken) throws Exception {
         var path = "/game";
-        makeRequest("PUT", path, null, Void.class,authToken);
+        JoinGameRequest joinGameRequest = new JoinGameRequest(playerColor, gameID);
+        makeRequest("PUT", path, joinGameRequest, null ,authToken);
     }
 
     public void observeGame(String authToken, int gameIndex) throws Exception {
@@ -78,7 +79,10 @@ public class ServerFacade {
             }
             http.connect();
             throwIfNotSuccessful(http);
-            return readBody(http, responseClass);
+            if(responseClass != null) {
+                return readBody(http, responseClass);
+            }
+            return (T) "Success";
         } catch(Exception e) {
             throw new Exception();
         }

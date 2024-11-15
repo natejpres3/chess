@@ -3,5 +3,5 @@ package model;
 import java.util.Collection;
 import java.util.Map;
 
-public record listGameResponse(Map<String, Collection<GameData>> listGames) {
+public record listGameResponse(Collection<GameData> games) {
 }
