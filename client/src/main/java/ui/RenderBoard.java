@@ -20,10 +20,27 @@ public class RenderBoard {
 
     private static void drawBoard(PrintStream out, boolean isWhite) {
         String[][] board = initBoard(isWhite);
+        out.print("  ");
+        printColumns(out, isWhite);
+        out.println();
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-            drawRowSquares(out, board[boardRow], boardRow);
+            drawRowSquares(out, board[boardRow], boardRow, isWhite);
         }
+        out.print("  ");
+        printColumns(out, isWhite);
         out.println(RESET_BG_COLOR);
+    }
+
+    private static void printColumns(PrintStream out, boolean isWhite) {
+        if(isWhite) {
+            for(char col = 'a'; col < 'a' + BOARD_SIZE_IN_SQUARES; col++) {
+                out.print("  " + col + "  ");
+            }
+        } else {
+            for(char col = (char)('a' + BOARD_SIZE_IN_SQUARES -1); col >= 'a'; col--) {
+                out.print("  " + col + "  ");
+            }
+        }
     }
 
     private static String[][] initBoard(boolean isWhite) {
@@ -49,12 +66,15 @@ public class RenderBoard {
         return board;
     }
 
-    private static void drawRowSquares(PrintStream out, String[] row, int rowInd) {
+    private static void drawRowSquares(PrintStream out, String[] row, int rowInd, boolean isWhite) {
+        int rowNum = isWhite ? BOARD_SIZE_IN_SQUARES - rowInd : rowInd + 1;
+        out.print(rowNum + " ");
         for (int col = 0; col < BOARD_SIZE_IN_SQUARES; col++) {
             boolean isBlackSquare = (rowInd + col) % 2 == 0;
             String bgColor = isBlackSquare ? SET_BG_COLOR_WHITE : SET_BG_COLOR_BLACK;
             out.print(bgColor + " " + row[col] + " " + RESET_BG_COLOR);
         }
+        out.print(" " + rowNum);
         out.println();
     }
 }
