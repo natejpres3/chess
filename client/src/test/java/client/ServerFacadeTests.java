@@ -8,6 +8,9 @@ import server.Server;
 import server.ServerFacade;
 import ui.PreLoginRepl;
 import ui.UserClient;
+
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -98,6 +101,11 @@ public class ServerFacadeTests {
     @Test
     void joinGameFailure() throws Exception {
 
+    }
+
+    @Test
+    void listGamesSuccess() throws Exception {
+        ArrayList<GameData> listOfGames = facade.listGames(client.getAuthToken());
     }
 
     @Test

@@ -5,10 +5,7 @@ import model.GameData;
 import model.UserData;
 import server.ServerFacade;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class UserClient {
@@ -16,7 +13,8 @@ public class UserClient {
     private final String serverUrl;
     private String authToken;
     private boolean isLoggedIn = false;
-    private ArrayList<GameData> gameList;
+    private ArrayList<GameData> gameList = new ArrayList<>();
+    private HashMap<Integer, Integer> gameIndex = new HashMap<>();
 
     public UserClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -45,7 +43,7 @@ public class UserClient {
                     case "logout" -> logout();
                     case "create" -> createGame(params);
                     case "list" -> listGames();
-                    case "join" -> joinGame();
+                    case "join" -> playGame(params);
                     default -> loggedInHelp();
                 };
             }
@@ -63,12 +61,14 @@ public class UserClient {
                     register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                     """;
         }
-        AuthData authData = server.register(new UserData(params[0], params[1], params[2]));
-        if(authData != null) {
-            isLoggedIn = true;
-            authToken = authData.authToken();
-            result = String.format("You are registered and logged in as %s %n", params[0]);
-        } else {
+        try {
+            AuthData authData = server.register(new UserData(params[0], params[1], params[2]));
+            if(authData != null) {
+                isLoggedIn = true;
+                authToken = authData.authToken();
+                result = String.format("You are registered and logged in as %s %n", params[0]);
+            }
+        } catch(Exception e) {
             result = """
                     The username you chose is already in use, choose another
                     register <USERNAME> <PASSWORD> <EMAIL> - to create an account
@@ -84,14 +84,17 @@ public class UserClient {
                     login <USERNAME> <PASSWORD> - to play chess
                     """;
         }
-        AuthData authData = server.login(new UserData(params[0],params[1], null));
-        if(authData != null) {
-            isLoggedIn = true;
-            authToken = authData.authToken();
-            return String.format("You are logged in as %s %n", params[0]);
-        } else {
-            return "Username or password are incorrect, try again";
+        try {
+            AuthData authData = server.login(new UserData(params[0],params[1], null));
+            if(authData != null) {
+                isLoggedIn = true;
+                authToken = authData.authToken();
+                return String.format("You are logged in as %s %n", params[0]);
+            }
+        } catch (Exception e) {
+            return String.format("Username or password are incorrect, try again %n");
         }
+        return "";
     }
 
     public String loggedOutHelp() {
@@ -133,69 +136,64 @@ public class UserClient {
                     create <NAME> - a game
                     """;
         } else {
-            server.createGame(authToken, new GameData(0, null, null, params[0], null));
-            return String.format("Created a game with the name: %s %n", params[0]);
+            try {
+                server.createGame(authToken, new GameData(0, null, null, params[0], null));
+                return String.format("Created a game with the name: %s %n", params[0]);
+            } catch (Exception e) {
+                return String.format("Error creating game. Game was not created. %n");
+            }
+
         }
     }
 
     public String listGames() throws Exception {
         if(isLoggedIn) {
-            ArrayList<GameData> getList = getListOfGames();
-            return printListGames(getList).toString();
+            gameList = server.listGames(authToken);
+            String result = printableLists();
+            return result;
         } else {
             return String.format("You must be signed in. %n");
         }
     }
 
-    public void playGame(String... params) throws Exception {
-        gameList = getListOfGames();
-        if(gameList.isEmpty()) {
-            System.out.println("First create the game");
-        }
-        if(params.length != 2 || !params[0].matches("\\d+") || !params[1].toLowerCase().matches("WHITE|BLACK")) {
-            System.out.println("Provide a game ID and the color you would like to play");
-        }
-    }
-
-    private ArrayList<GameData> getListOfGames() throws Exception {
-        ArrayList<GameData> result = new ArrayList<>();
-        Collection<GameData> listOfGames = server.listGames(authToken);
-        for(var value : listOfGames.entrySet()) {
-            Collection<GameData> game = value.getValue();
-            result.addAll(game);
-        }
-        return result;
-    }
-
-    private ArrayList<String[]> printListGames(ArrayList<GameData> gameList) throws Exception {
-         ArrayList<String[]> answer = new ArrayList<>();
-        for(int i=1; i<gameList.size()+1; i++) {
+    private String printableLists() throws Exception {
+        String answer = "";
+        for(int i=0; i<gameList.size(); i++) {
+            gameIndex.put(i+1, gameList.get(i).gameID());
             GameData game = gameList.get(i);
             String blackUser = game.blackUsername() != null ? game.blackUsername() : "None";
             String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "None";
-            String[] instance = {String.format("%d", i), blackUser, whiteUser};
-            answer.add(instance);
+            String temp = String.format("-- %d. BlackUser: %s, WhiteUser: %s %n", i+1,blackUser,whiteUser);
+            answer += temp;
         }
         return answer;
     }
 
-    public String joinGame(String... params) throws Exception {
-        if(params.length != 2) {
-            return """
-                    Provide a game number and desired color 
-                    join <ID> [BLACK|WHITE] - a game
-                    """;
+    public String playGame(String... params) throws Exception {
+        if(gameList.isEmpty()) {
+            return String.format("First create the game %n");
+        }
+        if(params.length != 2 || !params[0].matches("\\d+") || !params[1].toLowerCase().matches("WHITE|BLACK")) {
+            return String.format("Provide a game ID and the color you would like to play %n");
         }
         try {
-
+            server.joinGame(gameIndex.get(Integer.parseInt(params[0])), params[1], authToken);
+            RenderBoard.main();
+            return String.format("You've joined the game. Play well");
+        } catch (Exception e) {
+            return String.format("You can't join the game as that color. List games to see games and open colors. %n");
         }
     }
-//    private void printListOfGames(ArrayList<GameData> gameList) {
-//        for(int i=1; i< gameList.size()+1; i++) {
-//            GameData game = gameList.get(i);
-//            String blackUser = game.blackUsername() != null ? game.blackUsername() : "None";
-//            String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "None";
-//            System.out.printf("%d. Game name: %s, White user: %s, Black user: %s %n", i, game.gameName(), whiteUser, blackUser);
+
+//    public String joinGame(String... params) throws Exception {
+//        if(params.length != 2) {
+//            return """
+//                    Provide a game number and desired color
+//                    join <ID> [BLACK|WHITE] - a game
+//                    """;
+//        }
+//        try {
+//
 //        }
 //    }
 

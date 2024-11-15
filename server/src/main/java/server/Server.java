@@ -3,9 +3,7 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dataaccess.*;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 import service.GameService;
 import service.UserService;
 import spark.*;
@@ -166,7 +164,7 @@ public class Server {
             res.status(200);
             Map<String, Collection<GameData>> result = new HashMap<>();
             result.put("games", games);
-            return new Gson().toJson(result);
+            return new Gson().toJson(new listGameResponse(result));
         } catch (UnauthorizedException e) {
             res.status(401);
             return "{\"message\": \"Error: unauthorized\"}";

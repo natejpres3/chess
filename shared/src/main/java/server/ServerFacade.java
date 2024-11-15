@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -30,10 +31,11 @@ public class ServerFacade {
     }
 
     //maybe change response class
-    public Collection<GameData> listGames(String authToken) throws Exception{
+    public ArrayList<GameData> listGames(String authToken) throws Exception{
         var path = "/game";
-        Map<String, Collection<GameData>> mapList = makeRequest("GET", path, null, listGameResponse.class, authToken).listGames();
-        return mapList.values().stream().findFirst().orElse(Collections.emptyList());
+        listGameResponse listResponse = makeRequest("GET", path, null, listGameResponse.class, authToken);
+        Collection<GameData> collectionList = listResponse.listGames().get("games");
+        return (ArrayList<GameData>) collectionList;
     }
 
     public AuthData login(UserData userData) throws Exception {
@@ -51,10 +53,9 @@ public class ServerFacade {
         return makeRequest("POST", path, gameData, createGameResponse.class, authToken).gameID();
     }
 
-    public void joinGame(Integer gameID, String playerColor, String authToken) {
-//        var path = "/game";
-//        makeRequest("PUT", path, null, null,authToken);
-//        return "";
+    public void joinGame(Integer gameID, String playerColor, String authToken) throws Exception {
+        var path = "/game";
+        makeRequest("PUT", path, null, Void.class,authToken);
     }
 
     public void observeGame(String authToken, int gameIndex) throws Exception {

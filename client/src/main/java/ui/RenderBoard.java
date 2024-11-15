@@ -10,7 +10,7 @@ public class RenderBoard {
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 5;
     private static final int LINE_WIDTH_IN_PADDED_CHARS = 1;
 
-    public static void main(String[] args) {
+    public static void main() {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
         drawBoard(out, false);
