@@ -1,9 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.*;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class ServerFacade {
     private final String serverUrl;
@@ -32,7 +32,8 @@ public class ServerFacade {
     //maybe change response class
     public Collection<GameData> listGames(String authToken) throws Exception{
         var path = "/game";
-        return makeRequest("GET", path, null, Collection.class, authToken);
+        Map<String, Collection<GameData>> mapList = makeRequest("GET", path, null, listGameResponse.class, authToken).listGames();
+        return mapList.values().stream().findFirst().orElse(Collections.emptyList());
     }
 
     public AuthData login(UserData userData) throws Exception {
@@ -47,7 +48,7 @@ public class ServerFacade {
 
     public int createGame(String authToken, GameData gameData) throws Exception {
         var path = "/game";
-        return makeRequest("POST", path, gameData, Integer.class, authToken);
+        return makeRequest("POST", path, gameData, createGameResponse.class, authToken).gameID();
     }
 
     public void joinGame(Integer gameID, String playerColor, String authToken) {

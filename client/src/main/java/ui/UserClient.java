@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class UserClient {
     private final ServerFacade server;
@@ -44,6 +45,7 @@ public class UserClient {
                     case "logout" -> logout();
                     case "create" -> createGame(params);
                     case "list" -> listGames();
+                    case "join" -> joinGame();
                     default -> loggedInHelp();
                 };
             }
@@ -132,15 +134,14 @@ public class UserClient {
                     """;
         } else {
             server.createGame(authToken, new GameData(0, null, null, params[0], null));
-            return String.format("Created a game with the name: %s", params[0]);
+            return String.format("Created a game with the name: %s %n", params[0]);
         }
     }
 
     public String listGames() throws Exception {
         if(isLoggedIn) {
-            gameList = getListOfGames();
-            ArrayList<String[]> result = printListGames(gameList);
-            return result.toString();
+            ArrayList<GameData> getList = getListOfGames();
+            return printListGames(getList).toString();
         } else {
             return String.format("You must be signed in. %n");
         }
@@ -157,8 +158,13 @@ public class UserClient {
     }
 
     private ArrayList<GameData> getListOfGames() throws Exception {
+        ArrayList<GameData> result = new ArrayList<>();
         Collection<GameData> listOfGames = server.listGames(authToken);
-        return new ArrayList<>(listOfGames);
+        for(var value : listOfGames.entrySet()) {
+            Collection<GameData> game = value.getValue();
+            result.addAll(game);
+        }
+        return result;
     }
 
     private ArrayList<String[]> printListGames(ArrayList<GameData> gameList) throws Exception {
@@ -173,14 +179,25 @@ public class UserClient {
         return answer;
     }
 
-    private void printListOfGames(ArrayList<GameData> gameList) {
-        for(int i=1; i< gameList.size()+1; i++) {
-            GameData game = gameList.get(i);
-            String blackUser = game.blackUsername() != null ? game.blackUsername() : "None";
-            String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "None";
-            System.out.printf("%d. Game name: %s, White user: %s, Black user: %s %n", i, game.gameName(), whiteUser, blackUser);
+    public String joinGame(String... params) throws Exception {
+        if(params.length != 2) {
+            return """
+                    Provide a game number and desired color 
+                    join <ID> [BLACK|WHITE] - a game
+                    """;
+        }
+        try {
+
         }
     }
+//    private void printListOfGames(ArrayList<GameData> gameList) {
+//        for(int i=1; i< gameList.size()+1; i++) {
+//            GameData game = gameList.get(i);
+//            String blackUser = game.blackUsername() != null ? game.blackUsername() : "None";
+//            String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "None";
+//            System.out.printf("%d. Game name: %s, White user: %s, Black user: %s %n", i, game.gameName(), whiteUser, blackUser);
+//        }
+//    }
 
     public boolean getIsLoggedIn() {
         return isLoggedIn;
