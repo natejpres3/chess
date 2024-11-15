@@ -8,11 +8,7 @@ import service.GameService;
 import service.UserService;
 import spark.*;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Server {
 
@@ -163,10 +159,7 @@ public class Server {
         try {
             Collection<GameData> games = gameService.listGames(authToken);
             res.status(200);
-//            Map<String, Collection<GameData>> result = new HashMap<>();
-//            result.put("games", games);
-//            return new Gson().toJson(result);
-            return new Gson().toJson(new listGameResponse(games));
+            return new Gson().toJson(new ListGameResponse(games));
         } catch (UnauthorizedException e) {
             res.status(401);
             return "{\"message\": \"Error: unauthorized\"}";

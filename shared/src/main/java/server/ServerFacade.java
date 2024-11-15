@@ -30,10 +30,7 @@ public class ServerFacade {
     //maybe change response class
     public ArrayList<GameData> listGames(String authToken) throws Exception{
         var path = "/game";
-//        listGameResponse listResponse = makeRequest("GET", path, null, listGameResponse.class, authToken);
-//        Collection<GameData> collectionList = listResponse.listGames().get("games");
-//        return (ArrayList<GameData>) collectionList;
-        listGameResponse listResponse = makeRequest("GET", path, null, listGameResponse.class, authToken);
+        ListGameResponse listResponse = makeRequest("GET", path, null, ListGameResponse.class, authToken);
         Collection<GameData> collectionList = (Collection<GameData>) listResponse.games();
         return (ArrayList<GameData>) collectionList;
     }
@@ -50,7 +47,7 @@ public class ServerFacade {
 
     public int createGame(String authToken, GameData gameData) throws Exception {
         var path = "/game";
-        return makeRequest("POST", path, gameData, createGameResponse.class, authToken).gameID();
+        return makeRequest("POST", path, gameData, CreateGameResponse.class, authToken).gameID();
     }
 
     public void joinGame(Integer gameID, String playerColor, String authToken) throws Exception {
