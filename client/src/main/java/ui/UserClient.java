@@ -197,8 +197,16 @@ public class UserClient {
                     observe <ID> - a game
                     """;
         }
-        RenderBoard.main();
-        return String.format("You are observing the game");
+        try {
+            if(gameIndex.containsKey(Integer.parseInt(params[0]))) {
+                RenderBoard.main();
+                return String.format("You are observing the game %n");
+            } else {
+                return String.format("Not a valid game id to observe %n");
+            }
+        } catch (Exception e) {
+            return String.format("Not a valid game to observe %n");
+        }
     }
 
     public boolean getIsLoggedIn() {
