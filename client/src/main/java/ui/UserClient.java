@@ -13,6 +13,7 @@ public class UserClient {
     private final String serverUrl;
     private String authToken;
     private boolean isLoggedIn = false;
+    private boolean isInGame = false;
     private ArrayList<GameData> gameList = new ArrayList<>();
     private HashMap<Integer, Integer> gameIndex = new HashMap<>();
 
@@ -38,14 +39,26 @@ public class UserClient {
                     default -> loggedOutHelp();
                 };
             } else {
-                return switch(cmd) {
-                    case "logout" -> logout();
-                    case "create" -> createGame(params);
-                    case "list" -> listGames();
-                    case "join" -> playGame(params);
-                    case "observe" -> observeGame(params);
-                    default -> loggedInHelp();
-                };
+                if(!isInGame) {
+                    return switch(cmd) {
+                        case "logout" -> logout();
+                        case "create" -> createGame(params);
+                        case "list" -> listGames();
+                        case "join" -> playGame(params);
+                        case "observe" -> observeGame(params);
+                        default -> loggedInHelp();
+                    };
+                } else {
+                    return switch(cmd) {
+                        case "redraw" -> redrawBoard();
+                        case "leave" -> leaveGame();
+                        case "move" -> makeMove();
+                        case "resign" -> resignGame();
+                        case "highlight" -> highlightMoves();
+                        default -> inGameHelp();
+                    };
+                }
+
             }
 
         } catch(Exception e) {
@@ -184,6 +197,7 @@ public class UserClient {
         try {
             server.joinGame(gameIndex.get(Integer.parseInt(params[0])), params[1], authToken);
             RenderBoard.main();
+            isInGame = true;
             return String.format("You've joined the game. Play well %n");
         } catch (Exception e) {
             return String.format("You can't join the game as that color. List games to see games and open colors. %n");
@@ -200,6 +214,7 @@ public class UserClient {
         try {
             if(gameIndex.containsKey(Integer.parseInt(params[0]))) {
                 RenderBoard.main();
+                isInGame = true;
                 return String.format("You are observing the game %n");
             } else {
                 return String.format("Not a valid game id to observe %n");
@@ -211,6 +226,39 @@ public class UserClient {
 
     public boolean getIsLoggedIn() {
         return isLoggedIn;
+    }
+
+    public String redrawBoard() {
+        RenderBoard.main();
+        return "Board redrawn";
+    }
+
+    public String leaveGame() {
+        isInGame = false;
+        return "You have left the game";
+    }
+
+    public String makeMove() {
+
+    }
+
+    public String resignGame() {
+
+    }
+
+    public String highlightMoves() {
+
+    }
+
+    public String inGameHelp() {
+        return """
+                - redraw - the game board
+                - leave - the chess game
+                - move <from> <to> <promotionPiece> - make a move on the board (only enter promotion piece when appropriate)
+                - resign - forfeit this game
+                - highlight <position> - all legal moves from that position
+                - help - with possible commands
+                """;
     }
 
     public void clear() throws Exception {
