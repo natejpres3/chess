@@ -8,6 +8,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import service.GameService;
 import service.UserService;
 import spark.*;
+import websocket.WebsocketHandler;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,9 +22,10 @@ public class Server {
     private final UserService userService = new UserService(userDAO,authDAO);
     private final GameService gameService = new GameService(gameDAO,authDAO);
 
-//    public static ConcurrentHashMap<Session, Integer> connections = new ConcurrentHashMap<>();
+    private final WebsocketHandler websocketHandler;
 
     public Server() {
+        websocketHandler = new WebsocketHandler();
     }
 
     public int run(int desiredPort) {
@@ -32,7 +34,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         //websocket
-        Spark.webSocket("/ws", );
+        Spark.webSocket("/ws", websocketHandler);
 
         // Register your endpoints and handle exceptions here.
         //UserService endpoints

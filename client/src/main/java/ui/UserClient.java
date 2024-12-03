@@ -52,9 +52,9 @@ public class UserClient {
                     return switch(cmd) {
                         case "redraw" -> redrawBoard();
                         case "leave" -> leaveGame();
-                        case "move" -> makeMove();
-                        case "resign" -> resignGame();
-                        case "highlight" -> highlightMoves();
+//                        case "move" -> makeMove();
+//                        case "resign" -> resignGame();
+//                        case "highlight" -> highlightMoves();
                         default -> inGameHelp();
                     };
                 }
@@ -238,17 +238,17 @@ public class UserClient {
         return "You have left the game";
     }
 
-    public String makeMove() {
-
-    }
-
-    public String resignGame() {
-
-    }
-
-    public String highlightMoves() {
-
-    }
+//    public String makeMove() {
+//
+//    }
+//
+//    public String resignGame() {
+//
+//    }
+//
+//    public String highlightMoves() {
+//
+//    }
 
     public String inGameHelp() {
         return """

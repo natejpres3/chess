@@ -1,5 +1,6 @@
 package websocket;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 
 public class Connection {
@@ -12,6 +13,6 @@ public class Connection {
     }
 
     public void send(String msg) throws Exception {
-        session.getRemote().sendString(msg);
+        session.getRemote().sendString(new Gson().toJson(msg));
     }
 }
