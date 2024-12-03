@@ -87,4 +87,8 @@ public class UserService {
         userDAO.clear();
         authDAO.clear();
     }
+
+    public AuthData getAuthData(String authtoken) throws DataAccessException {
+        return authDAO.getAuthData(authtoken);
+    }
 }

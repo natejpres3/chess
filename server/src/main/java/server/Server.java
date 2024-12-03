@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dataaccess.*;
 import model.*;
+import org.eclipse.jetty.websocket.api.Session;
 import service.GameService;
 import service.UserService;
 import spark.*;
 
 import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
 
@@ -19,6 +21,8 @@ public class Server {
     private final UserService userService = new UserService(userDAO,authDAO);
     private final GameService gameService = new GameService(gameDAO,authDAO);
 
+//    public static ConcurrentHashMap<Session, Integer> connections = new ConcurrentHashMap<>();
+
     public Server() {
     }
 
@@ -26,6 +30,9 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        //websocket
+        Spark.webSocket("/ws", );
 
         // Register your endpoints and handle exceptions here.
         //UserService endpoints
@@ -168,4 +175,8 @@ public class Server {
             return "{\"message\": \"Error: (description of error)\"}";
         }
     }
+
+//    public static AuthData getAuthData(String authtoken) throws DataAccessException {
+//        return userService.getAuthData(authtoken);
+//    }
 }
