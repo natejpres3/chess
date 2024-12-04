@@ -162,6 +162,9 @@ public class WebsocketHandler {
     private void handleMakeMove(Session session, MakeMoveCommand command) throws Exception {
         try {
             AuthData authData = authDAO.getAuthData(command.getAuthToken());
+            if(authData == null) {
+                throw new UnauthorizedException("Unauthorized");
+            }
             authDAO.authenicateToken(authData);
             GameData gameData = gameDAO.getGame(command.getGameID());
             ChessGame.TeamColor playerColor = getUsernameColor(authData.username(), gameData);
