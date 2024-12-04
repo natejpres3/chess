@@ -89,6 +89,7 @@ public class WebsocketHandler {
             var msg = "Error: Not authorized";
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, msg);
             sendMessage(session, new Gson().toJson(errorMessage));
+//            sendError(session, errorMessage);
         } catch (BadRequestException e) {
             var msg = "Error: Not a valid game to join or observe";
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, msg);
@@ -149,6 +150,7 @@ public class WebsocketHandler {
             }
 
             gameData.game().setGameDone(true);
+            gameDAO.updateGame(gameData.gameID(), gameData);
             var msg = String.format("%s resigns the game to %s who wins!", authData.username(), opponentUsername);
             ServerMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, msg);
             connections.broadcast(authData.username(), notificationMessage, true);
@@ -234,6 +236,10 @@ public class WebsocketHandler {
 //    public void sendMessage(Session session, ServerMessage message) throws IOException {
 //        session.getRemote().sendString(new Gson().toJson(message));
 //    }
+
+    public void sendError(Session session, ErrorMessage errorMessage) throws IOException {
+        session.getRemote().sendString(new Gson().toJson(errorMessage));
+    }
 
     public void sendMessage(Session session, String msg) throws Exception {
         session.getRemote().sendString(msg);
