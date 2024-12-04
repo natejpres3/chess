@@ -20,11 +20,15 @@ public class ConnectionManager {
         connections.remove(username);
     }
 
-    public void broadcast(String excludeUsername, ServerMessage serverMessage) throws Exception {
+    public void broadcast(String excludeUsername, ServerMessage serverMessage, boolean toYourself) throws Exception {
         var removeList = new ArrayList<Connection>();
         for(var c : connections.values()) {
             if(c.session.isOpen()) {
-                if(!c.username.equals(excludeUsername)) {
+                if(!toYourself) {
+                    if(!c.username.equals(excludeUsername)) {
+                        c.send(new Gson().toJson(serverMessage));
+                    }
+                } else {
                     c.send(new Gson().toJson(serverMessage));
                 }
             } else {

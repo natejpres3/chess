@@ -13,11 +13,13 @@ import java.util.Objects;
 public class ChessGame {
     private ChessBoard board;
     boolean isWhitesTurn;
+    boolean isGameDone;
 
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
         this.isWhitesTurn = true;
+        this.isGameDone = false;
     }
 
     /**
@@ -264,6 +266,14 @@ public class ChessGame {
             }
         }
         return false;
+    }
+
+    public void setGameDone(Boolean isGameDone) {
+        this.isGameDone = isGameDone;
+    }
+
+    public boolean getIsGameDone() {
+        return isGameDone;
     }
 
     @Override
