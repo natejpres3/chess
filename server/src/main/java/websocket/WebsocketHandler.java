@@ -65,7 +65,7 @@ public class WebsocketHandler {
             }
             boolean authenicated = authDAO.authenicateToken(authData);
             String username = authData.username();
-            connections.add(username, session);
+            connections.add(username, session, command.getGameID());
             GameData gameData = gameDAO.getGame(command.getGameID());
             if(gameData == null) {
                 throw new BadRequestException("No game here");
@@ -80,7 +80,7 @@ public class WebsocketHandler {
                 message = String.format("%s joined the game as an observer", username);
             }
             ServerMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(username, notificationMessage, false);
+            connections.broadcast(username, notificationMessage, false, gameData.gameID());
 
             //Load game message
             LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game());
@@ -118,10 +118,10 @@ public class WebsocketHandler {
             GameData newGameData = leaveUpdateHelper(gameData, playerColor);
             gameDAO.updateGame(command.getGameID(), newGameData);
 
-            connections.remove(username);
+            connections.remove(username, gameData.gameID());
             var message = String.format("%s has left the game", username);
             ServerMessage notificationMessage = new NotificationMessage(websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(username, notificationMessage, false);
+            connections.broadcast(username, notificationMessage, false, gameData.gameID());
             session.close();
         } catch(Exception e) {
 
@@ -153,7 +153,7 @@ public class WebsocketHandler {
             gameDAO.updateGame(gameData.gameID(), gameData);
             var msg = String.format("%s resigns the game to %s who wins!", authData.username(), opponentUsername);
             ServerMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, msg);
-            connections.broadcast(authData.username(), notificationMessage, true);
+            connections.broadcast(authData.username(), notificationMessage, true, gameData.gameID());
         } catch (Exception e) {
 
         }
@@ -198,11 +198,11 @@ public class WebsocketHandler {
                     msg = String.format("%s just made a move", authData.username());
                 }
                 NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, msg);
-                connections.broadcast(authData.username(), notificationMessage, false);
+                connections.broadcast(authData.username(), notificationMessage, false, gameData.gameID());
 
                 gameDAO.updateGame(gameData.gameID(), gameData);
                 LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game());
-                connections.broadcast(authData.username(), loadGameMessage, true);
+                connections.broadcast(authData.username(), loadGameMessage, true, gameData.gameID());
             } else {
                 var msg = "Error: It is not your turn to make a move";
                 ServerMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, msg);
