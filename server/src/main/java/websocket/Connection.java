@@ -13,6 +13,6 @@ public class Connection {
     }
 
     public void send(String msg) throws Exception {
-        session.getRemote().sendString(new Gson().toJson(msg));
+        session.getRemote().sendString(msg);
     }
 }

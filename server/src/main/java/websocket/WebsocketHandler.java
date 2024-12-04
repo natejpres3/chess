@@ -44,7 +44,7 @@ public class WebsocketHandler {
         AuthData authData = authDAO.getAuthData(command.getAuthToken());
         switch (command.getCommandType()) {
             case CONNECT -> handleConnect(authData.username(), session, command.getGameID());
-            case LEAVE -> handleLeave(authData.username());
+            case LEAVE -> handleLeave(authData.username(), session);
         };
     }
 
@@ -53,9 +53,9 @@ public class WebsocketHandler {
         GameData gameData = gameDAO.getGame(gameID);
         String playerColor;
         if(gameData != null) {
-            if(gameData.blackUsername() == username) {
+            if(username.equals(gameData.blackUsername())) {
                 playerColor = "Black";
-            } else if(gameData.whiteUsername() == username) {
+            } else if(username.equals(gameData.whiteUsername())) {
                 playerColor = "White";
             } else {
                 playerColor = null;
@@ -77,11 +77,12 @@ public class WebsocketHandler {
         }
     }
 
-    private void handleLeave(String username) throws Exception {
+    private void handleLeave(String username, Session session) throws Exception {
         connections.remove(username);
         var message = String.format("%s has left the game", username);
         ServerMessage notificationMessage = new NotificationMessage(websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(username, notificationMessage);
+        session.close();
     }
 
 }
