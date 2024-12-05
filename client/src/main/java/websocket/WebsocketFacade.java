@@ -4,16 +4,13 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import com.google.gson.Gson;
-import com.sun.nio.sctp.Notification;
 import ui.EscapeSequences;
-import ui.HighlightBoard;
 import ui.PrintBoard;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 //import com.sun.nio.sctp.NotificationHandler;
 
 import javax.websocket.*;
@@ -51,7 +48,7 @@ public class WebsocketFacade extends Endpoint {
             LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
             this.isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
             this.game = loadGameMessage.getGame();
-            PrintBoard.printBoard(loadGameMessage.getGame(), isWhite);
+            PrintBoard.printBoard(loadGameMessage.getGame(), isWhite, null, false);
         } else if(message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
             System.out.print(EscapeSequences.ERASE_LINE + '\n');
@@ -98,7 +95,7 @@ public class WebsocketFacade extends Endpoint {
     }
 
     public void redrawGame() {
-        PrintBoard.printBoard(loadGameMessage.getGame(), true);
+        PrintBoard.printBoard(loadGameMessage.getGame(), true, null, false);
     }
 
     public void makeMove(String authToken, Integer gameID, ChessMove move) {
@@ -111,6 +108,7 @@ public class WebsocketFacade extends Endpoint {
     }
 
     public void highlightMoves(ChessPosition position) {
-        HighlightBoard.printBoard(game, isWhite, position);
+//        HighlightBoard.printBoard(game, isWhite, position);
+        PrintBoard.printBoard(game, isWhite, position, true);
     }
 }

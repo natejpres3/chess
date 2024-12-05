@@ -1,12 +1,11 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -15,9 +14,14 @@ public class PrintBoard {
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 5;
     private static final int LINE_WIDTH_IN_PADDED_CHARS = 1;
 
-    public static void printBoard(ChessGame game, boolean isWhitePerspective) {
+    public static void printBoard(ChessGame game, boolean isWhitePerspective, ChessPosition chessPosition, boolean isHighlight) {
         ChessBoard board = game.getBoard();
         System.out.print(ERASE_SCREEN);
+
+        Collection<ChessMove> highlightMoves = new ArrayList<>();
+        if(chessPosition != null) {
+            highlightMoves = game.validMoves(chessPosition);
+        }
 
         int rowStart = isWhitePerspective ? 7 : 0;
         int rowEnd = isWhitePerspective ? -1 : 8;
@@ -37,8 +41,17 @@ public class PrintBoard {
             System.out.print((row+1) + " ");
 
             for(int col = colStart; col != colEnd; col += colStep) {
+                ChessPosition currentPos = new ChessPosition(row+1, col+1);
                 boolean isBlackSquare = (row + col) % 2 != 0;
                 String bgColor = isBlackSquare ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_WHITE;
+
+                //for highlights
+                if(isHighlight) {
+                    if(highlightMoves.stream().anyMatch(move -> move.getEndPosition().equals(currentPos))) {
+                        bgColor = SET_BG_COLOR_YELLOW;
+                    }
+                }
+
                 System.out.print(bgColor);
 
                 ChessPiece piece = board.getPiece(new ChessPosition(row+1, col+1));
