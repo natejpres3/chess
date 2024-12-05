@@ -150,6 +150,7 @@ public class WebsocketHandler {
             authDAO.authenicateToken(authData);
             GameData gameData = gameDAO.getGame(command.getGameID());
             ChessGame.TeamColor playerColor = getUsernameColor(authData.username(), gameData);
+            ChessGame.TeamColor opponentColor = playerColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
 
             if(playerColor == null) {
                 var msg = "Error: You are observing, you cannot make a move";
@@ -168,13 +169,16 @@ public class WebsocketHandler {
             //make move if correct color
             if(playerColor.equals(gameData.game().getTeamTurn())) {
                 gameData.game().makeMove(command.getMove());
+                gameDAO.updateGame(gameData.gameID(), gameData);
+
+//                gameData = gameDAO.getGame(gameData.gameID());
 
                 String msg;
-                if(gameData.game().isInCheck(playerColor)) {
+                if(gameData.game().isInCheck(opponentColor)) {
                     msg = String.format("%s just put his opponent in check", authData.username());
-                } else if (gameData.game().isInStalemate(playerColor)) {
+                } else if (gameData.game().isInStalemate(opponentColor)) {
                     msg = String.format("%s just caused a stalemate", authData.username());
-                } else if (gameData.game().isInCheckmate(playerColor)) {
+                } else if (gameData.game().isInCheckmate(opponentColor)) {
                     msg = String.format("%s just put his opponent in checkmate", authData.username());
                 } else {
                     msg = String.format("%s just made a move", authData.username());
@@ -182,7 +186,6 @@ public class WebsocketHandler {
                 NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, msg);
                 connections.broadcast(authData.username(), notificationMessage, false, gameData.gameID());
 
-                gameDAO.updateGame(gameData.gameID(), gameData);
                 LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), playerColor);
                 connections.broadcast(authData.username(), loadGameMessage, true, gameData.gameID());
             } else {

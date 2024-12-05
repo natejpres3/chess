@@ -173,6 +173,7 @@ public class ChessGame {
                 Collection<ChessMove> validTeamMoves = validMoves(position);
                 if(!validTeamMoves.isEmpty()) {return false;}
             }
+            isGameDone = true;
             return true;
         }
     }
@@ -195,6 +196,7 @@ public class ChessGame {
                 Collection<ChessMove> validTeamMoves = validMoves(position);
                 if(!validTeamMoves.isEmpty()) {return false;}
             }
+            isGameDone = true;
             return true;
         }
         return false;

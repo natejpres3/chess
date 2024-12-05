@@ -6,6 +6,7 @@ import chess.ChessPosition;
 import com.google.gson.Gson;
 import ui.EscapeSequences;
 import ui.PrintBoard;
+import ui.UserClient;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
@@ -17,11 +18,13 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 
+import static ui.UserClient.isClientWhite;
+
 public class WebsocketFacade extends Endpoint {
     Session session;
     LoadGameMessage loadGameMessage;
     ChessGame game;
-    boolean isWhite;
+//    boolean isWhite;
 
     public WebsocketFacade(String url) throws Exception {
         url = url.replace("http", "ws");
@@ -46,9 +49,9 @@ public class WebsocketFacade extends Endpoint {
     private void handleIncomingMessage(String message) {
         if(message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
             LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-            this.isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
+//            this.isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
             this.game = loadGameMessage.getGame();
-            PrintBoard.printBoard(loadGameMessage.getGame(), isWhite, null, false);
+            PrintBoard.printBoard(loadGameMessage.getGame(), isClientWhite(), null, false);
         } else if(message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
             System.out.print(EscapeSequences.ERASE_LINE + '\n');
@@ -58,11 +61,6 @@ public class WebsocketFacade extends Endpoint {
             System.out.print(EscapeSequences.ERASE_LINE + '\n');
             System.out.println(errorMessage.getMessage());
         }
-    }
-
-
-    public boolean getIsWhite() {
-        return isWhite;
     }
 
     public void connectToGame(String authToken, Integer gameID) {
@@ -95,7 +93,7 @@ public class WebsocketFacade extends Endpoint {
     }
 
     public void redrawGame() {
-        PrintBoard.printBoard(loadGameMessage.getGame(), true, null, false);
+        PrintBoard.printBoard(game, isClientWhite(), null, false);
     }
 
     public void makeMove(String authToken, Integer gameID, ChessMove move) {
@@ -109,6 +107,6 @@ public class WebsocketFacade extends Endpoint {
 
     public void highlightMoves(ChessPosition position) {
 //        HighlightBoard.printBoard(game, isWhite, position);
-        PrintBoard.printBoard(game, isWhite, position, true);
+        PrintBoard.printBoard(game, isClientWhite(), position, true);
     }
 }

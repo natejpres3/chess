@@ -20,7 +20,7 @@ public class UserClient {
     private WebsocketFacade ws;
     private ArrayList<GameData> gameList = new ArrayList<>();
     private HashMap<Integer, Integer> gameIndex = new HashMap<>();
-    boolean isClientWhite;
+    static boolean isClientWhite;
 
     public UserClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -29,6 +29,10 @@ public class UserClient {
 
     public String getAuthToken() {
         return authToken;
+    }
+
+    public boolean getIsInGame() {
+        return isInGame;
     }
 
     public String eval(String input) {
@@ -204,7 +208,7 @@ public class UserClient {
             gameID = gameIndex.get(Integer.parseInt(params[0]));
             server.joinGame(gameID, params[1], authToken);
             isInGame = true;
-//            isClientWhite = params[1].equalsIgnoreCase("WHITE");
+            isClientWhite = params[1].equalsIgnoreCase("WHITE");
             //websocket facade
             ws = new WebsocketFacade(serverUrl);
             ws.connectToGame(authToken, Integer.parseInt(params[0]));
@@ -212,6 +216,10 @@ public class UserClient {
         } catch (Exception e) {
             return String.format("You can't join the game as that color. List games to see games and open colors. %n");
         }
+    }
+
+    public static boolean isClientWhite() {
+        return isClientWhite;
     }
 
     public String observeGame(String... params) throws Exception {
@@ -247,7 +255,7 @@ public class UserClient {
     public String leaveGame() {
         isInGame = false;
         ws.leaveGame(authToken, gameID);
-        return "You have left the game";
+        return "You have left the game \n";
     }
 
     public String makeMove(String... params) {
