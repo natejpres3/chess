@@ -24,6 +24,7 @@ public class WebsocketFacade extends Endpoint {
     Session session;
     LoadGameMessage loadGameMessage;
     ChessGame game;
+    boolean isWhite;
 
     public WebsocketFacade(String url) throws Exception {
         url = url.replace("http", "ws");
@@ -48,10 +49,11 @@ public class WebsocketFacade extends Endpoint {
     private void handleIncomingMessage(String message) {
         if(message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
             LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-            boolean isWhite = true;
-            if(loadGameMessage.getPlayerColor() != null) {
-                isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
-            }
+//            boolean isWhite = true;
+//            if(loadGameMessage.getPlayerColor() != null) {
+//                isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
+//            }
+            this.isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
             this.game = loadGameMessage.getGame();
             PrintBoard.printBoard(loadGameMessage.getGame(), isWhite);
         } else if(message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
@@ -60,7 +62,8 @@ public class WebsocketFacade extends Endpoint {
             System.out.println(notificationMessage.getMessage());
         } else if(message.contains("\"serverMessageType\":\"ERROR\"")) {
             ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
-
+            System.out.print(EscapeSequences.ERASE_LINE + '\n');
+            System.out.println(errorMessage.getMessage());
         }
     }
 
@@ -111,6 +114,6 @@ public class WebsocketFacade extends Endpoint {
     }
 
     public void highlightMoves(ChessPosition position) {
-        HighlightBoard.printBoard(game, true, position);
+        HighlightBoard.printBoard(game, isWhite, position);
     }
 }
