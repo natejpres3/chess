@@ -20,12 +20,11 @@ import java.net.URI;
 
 public class WebsocketFacade extends Endpoint {
     Session session;
-//    NotificationHandler notificationHandler;
+    LoadGameMessage loadGameMessage;
 
     public WebsocketFacade(String url) throws Exception {
         url = url.replace("http", "ws");
         URI socketURI = new URI(url + "/ws");
-//        this.notificationHandler = notificationHandler;
 
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, socketURI);
@@ -46,8 +45,18 @@ public class WebsocketFacade extends Endpoint {
     private void handleIncomingMessage(String message) {
         if(message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
             LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-            boolean isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
+            boolean isWhite = true;
+            if(loadGameMessage.getPlayerColor() != null) {
+                isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
+            }
             PrintBoard.printBoard(loadGameMessage.getGame(), isWhite);
+//            boolean isWhite;
+//            if(loadGameMessage.getPlayerColor() == null) {
+//                this.loadGameMessage = loadGameMessage;
+//            } else {
+//                isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
+//                PrintBoard.printBoard(loadGameMessage.getGame(), isWhite);
+//            }
         } else if(message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
             System.out.print(EscapeSequences.ERASE_LINE + '\n');
@@ -57,6 +66,8 @@ public class WebsocketFacade extends Endpoint {
 
         }
     }
+
+
 
 
 
@@ -87,6 +98,10 @@ public class WebsocketFacade extends Endpoint {
         } catch (IOException e) {
 
         }
+    }
+
+    public void redrawGame() {
+        PrintBoard.printBoard(loadGameMessage.getGame(), true);
     }
 
     public void makeMove(String authToken, Integer gameID, ChessMove move) {

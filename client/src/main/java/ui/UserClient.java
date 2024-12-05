@@ -1,5 +1,7 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -221,7 +223,7 @@ public class UserClient {
         try {
             if(gameIndex.containsKey(Integer.parseInt(params[0]))) {
                 ws = new WebsocketFacade(serverUrl);
-                ws.connectToGame(authToken, gameID);
+                ws.connectToGame(authToken, Integer.parseInt(params[0]));
                 isInGame = true;
                 return String.format("You are observing the game %n");
             } else {
@@ -237,7 +239,7 @@ public class UserClient {
     }
 
     public String redrawBoard() {
-        RenderBoard.main();
+        ws.redrawGame();
         return "Board redrawn";
     }
 
