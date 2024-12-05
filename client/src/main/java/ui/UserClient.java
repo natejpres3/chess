@@ -298,12 +298,14 @@ public class UserClient {
     }
 
     public String highlightMoves(String... params) {
-        if(params.length != 0) {
+        if(params.length != 1) {
             return """
                     Provide a chess position to highlight from
                     highlight <position> - all legal moves from that position
                     """;
         }
+        ChessPosition positionToHighlight = getPositionFromInput(params[0]);
+        ws.highlightMoves(positionToHighlight);
         return "";
     }
 

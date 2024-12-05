@@ -2,9 +2,11 @@ package websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import com.sun.nio.sctp.Notification;
 import ui.EscapeSequences;
+import ui.HighlightBoard;
 import ui.PrintBoard;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
@@ -21,6 +23,7 @@ import java.net.URI;
 public class WebsocketFacade extends Endpoint {
     Session session;
     LoadGameMessage loadGameMessage;
+    ChessGame game;
 
     public WebsocketFacade(String url) throws Exception {
         url = url.replace("http", "ws");
@@ -49,6 +52,7 @@ public class WebsocketFacade extends Endpoint {
             if(loadGameMessage.getPlayerColor() != null) {
                 isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
             }
+            this.game = loadGameMessage.getGame();
             PrintBoard.printBoard(loadGameMessage.getGame(), isWhite);
         } else if(message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
@@ -106,5 +110,7 @@ public class WebsocketFacade extends Endpoint {
         }
     }
 
-
+    public void highlightMoves(ChessPosition position) {
+        HighlightBoard.printBoard(game, true, position);
+    }
 }
