@@ -4,6 +4,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import server.ServerFacade;
+import websocket.WebsocketFacade;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ public class UserClient {
     private String authToken;
     private boolean isLoggedIn = false;
     private boolean isInGame = false;
+    private WebsocketFacade ws;
     private ArrayList<GameData> gameList = new ArrayList<>();
     private HashMap<Integer, Integer> gameIndex = new HashMap<>();
 
@@ -196,8 +198,11 @@ public class UserClient {
         }
         try {
             server.joinGame(gameIndex.get(Integer.parseInt(params[0])), params[1], authToken);
-            RenderBoard.main();
+//            RenderBoard.main();
             isInGame = true;
+            //websocket facade
+            ws = new WebsocketFacade(serverUrl);
+            ws.connectToGame(authToken, Integer.parseInt(params[0]));
             return String.format("You've joined the game. Play well %n");
         } catch (Exception e) {
             return String.format("You can't join the game as that color. List games to see games and open colors. %n");
