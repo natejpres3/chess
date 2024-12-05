@@ -44,24 +44,4 @@ public class ConnectionManager {
             connections.remove(c.username);
         }
     }
-
-//    public void broadcast(String excludeUsername, ServerMessage serverMessage, boolean toYourself) throws Exception {
-//        var removeList = new ArrayList<Connection>();
-//        for(var c : connections.values()) {
-//            if(c.session.isOpen()) {
-//                if(!toYourself) {
-//                    if(!c.username.equals(excludeUsername)) {
-//                        c.send(new Gson().toJson(serverMessage));
-//                    }
-//                } else {
-//                    c.send(new Gson().toJson(serverMessage));
-//                }
-//            } else {
-//                removeList.add(c);
-//            }
-//        }
-//        for(var c : removeList) {
-//            connections.remove(c.username);
-//        }
-//    }
 }

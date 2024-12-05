@@ -49,10 +49,6 @@ public class WebsocketFacade extends Endpoint {
     private void handleIncomingMessage(String message) {
         if(message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
             LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-//            boolean isWhite = true;
-//            if(loadGameMessage.getPlayerColor() != null) {
-//                isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
-//            }
             this.isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
             this.game = loadGameMessage.getGame();
             PrintBoard.printBoard(loadGameMessage.getGame(), isWhite);
@@ -68,8 +64,9 @@ public class WebsocketFacade extends Endpoint {
     }
 
 
-
-
+    public boolean getIsWhite() {
+        return isWhite;
+    }
 
     public void connectToGame(String authToken, Integer gameID) {
         try {

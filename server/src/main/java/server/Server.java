@@ -177,8 +177,4 @@ public class Server {
             return "{\"message\": \"Error: (description of error)\"}";
         }
     }
-
-//    public static AuthData getAuthData(String authtoken) throws DataAccessException {
-//        return userService.getAuthData(authtoken);
-//    }
 }

@@ -35,16 +35,6 @@ public class WebsocketHandler {
     MySQLGameDAO gameDAO = new MySQLGameDAO();
     private final ConnectionManager connections = new ConnectionManager();
 
-//    @OnWebSocketConnect
-//    public void whenConnect(Session session) throws Exception {
-//        Server.connections.put(session, 0);
-//    }
-//
-//    @OnWebSocketClose
-//    public void whenClose(Session session) {
-//        Server.connections.remove(session);
-//    }
-
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
@@ -96,14 +86,6 @@ public class WebsocketHandler {
             sendMessage(session, new Gson().toJson(errorMessage));
         }
     }
-
-//    private void handleLeave(String username, Session session) throws Exception {
-//        connections.remove(username);
-//        var message = String.format("%s has left the game", username);
-//        ServerMessage notificationMessage = new NotificationMessage(websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION, message);
-//        connections.broadcast(username, notificationMessage, false);
-//        session.close();
-//    }
 
     private void handleLeave(Session session, UserGameCommand command) throws Exception {
         try {
@@ -234,14 +216,6 @@ public class WebsocketHandler {
         } else {
             return null;
         }
-    }
-
-//    public void sendMessage(Session session, ServerMessage message) throws IOException {
-//        session.getRemote().sendString(new Gson().toJson(message));
-//    }
-
-    public void sendError(Session session, ErrorMessage errorMessage) throws IOException {
-        session.getRemote().sendString(new Gson().toJson(errorMessage));
     }
 
     public void sendMessage(Session session, String msg) throws Exception {

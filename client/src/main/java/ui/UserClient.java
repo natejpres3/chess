@@ -20,6 +20,7 @@ public class UserClient {
     private WebsocketFacade ws;
     private ArrayList<GameData> gameList = new ArrayList<>();
     private HashMap<Integer, Integer> gameIndex = new HashMap<>();
+    boolean isClientWhite;
 
     public UserClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -203,6 +204,7 @@ public class UserClient {
             gameID = gameIndex.get(Integer.parseInt(params[0]));
             server.joinGame(gameID, params[1], authToken);
             isInGame = true;
+//            isClientWhite = params[1].equalsIgnoreCase("WHITE");
             //websocket facade
             ws = new WebsocketFacade(serverUrl);
             ws.connectToGame(authToken, Integer.parseInt(params[0]));
