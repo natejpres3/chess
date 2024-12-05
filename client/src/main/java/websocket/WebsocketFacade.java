@@ -1,9 +1,11 @@
 package websocket;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import com.sun.nio.sctp.Notification;
 import ui.EscapeSequences;
+import ui.PrintBoard;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
@@ -44,7 +46,8 @@ public class WebsocketFacade extends Endpoint {
     private void handleIncomingMessage(String message) {
         if(message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
             LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-
+            boolean isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
+            PrintBoard.printBoard(loadGameMessage.getGame(), isWhite);
         } else if(message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
             System.out.print(EscapeSequences.ERASE_LINE + '\n');

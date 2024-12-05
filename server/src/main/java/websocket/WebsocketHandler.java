@@ -83,7 +83,7 @@ public class WebsocketHandler {
             connections.broadcast(username, notificationMessage, false, gameData.gameID());
 
             //Load game message
-            LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game());
+            LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), playerColor);
             session.getRemote().sendString(new Gson().toJson(loadGameMessage));
         } catch (UnauthorizedException e) {
             var msg = "Error: Not authorized";
@@ -201,7 +201,7 @@ public class WebsocketHandler {
                 connections.broadcast(authData.username(), notificationMessage, false, gameData.gameID());
 
                 gameDAO.updateGame(gameData.gameID(), gameData);
-                LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game());
+                LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), playerColor);
                 connections.broadcast(authData.username(), loadGameMessage, true, gameData.gameID());
             } else {
                 var msg = "Error: It is not your turn to make a move";

@@ -13,6 +13,7 @@ public class UserClient {
     private final ServerFacade server;
     private final String serverUrl;
     private String authToken;
+    private Integer gameID;
     private boolean isLoggedIn = false;
     private boolean isInGame = false;
     private WebsocketFacade ws;
@@ -197,8 +198,9 @@ public class UserClient {
             return String.format("Provide a game ID and the color you would like to play %n");
         }
         try {
-            server.joinGame(gameIndex.get(Integer.parseInt(params[0])), params[1], authToken);
-//            RenderBoard.main();
+            //game id
+            gameID = gameIndex.get(Integer.parseInt(params[0]));
+            server.joinGame(gameID, params[1], authToken);
             isInGame = true;
             //websocket facade
             ws = new WebsocketFacade(serverUrl);
@@ -218,7 +220,8 @@ public class UserClient {
         }
         try {
             if(gameIndex.containsKey(Integer.parseInt(params[0]))) {
-                RenderBoard.main();
+                ws = new WebsocketFacade(serverUrl);
+                ws.connectToGame(authToken, gameID);
                 isInGame = true;
                 return String.format("You are observing the game %n");
             } else {
@@ -240,6 +243,7 @@ public class UserClient {
 
     public String leaveGame() {
         isInGame = false;
+        ws.leaveGame(authToken, gameID);
         return "You have left the game";
     }
 
