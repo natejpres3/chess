@@ -58,7 +58,7 @@ public class UserClient {
                         case "leave" -> leaveGame();
                         case "move" -> makeMove(params);
                         case "resign" -> resignGame();
-//                        case "highlight" -> highlightMoves();
+                        case "highlight" -> highlightMoves(params);
                         default -> inGameHelp();
                     };
                 }
@@ -274,8 +274,8 @@ public class UserClient {
     }
 
     private ChessPosition getPositionFromInput(String param) {
-        int firstChar = param.charAt(0) - ('a'+1);
-        int secondChar = Integer.parseInt(String.valueOf(param.charAt(1)));
+        int firstChar = param.charAt(0) - ('a'-1);
+        int secondChar = param.charAt(1) - '0';
         return new ChessPosition(secondChar, firstChar);
     }
 
@@ -296,10 +296,16 @@ public class UserClient {
         ws.resignGame(authToken, gameID);
         return "";
     }
-//
-//    public String highlightMoves() {
-//
-//    }
+
+    public String highlightMoves(String... params) {
+        if(params.length != 0) {
+            return """
+                    Provide a chess position to highlight from
+                    highlight <position> - all legal moves from that position
+                    """;
+        }
+        return "";
+    }
 
     public String inGameHelp() {
         return """
