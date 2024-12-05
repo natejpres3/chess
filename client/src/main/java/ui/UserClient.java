@@ -1,7 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
+import chess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -57,7 +56,7 @@ public class UserClient {
                     return switch(cmd) {
                         case "redraw" -> redrawBoard();
                         case "leave" -> leaveGame();
-//                        case "move" -> makeMove();
+                        case "move" -> makeMove(params);
                         case "resign" -> resignGame();
 //                        case "highlight" -> highlightMoves();
                         default -> inGameHelp();
@@ -249,10 +248,50 @@ public class UserClient {
         return "You have left the game";
     }
 
-//    public String makeMove() {
-//
-//    }
-//
+    public String makeMove(String... params) {
+        if(params.length < 2) {
+            return """
+                    Provide a starting position, ending position, and a promotion piece if applicable
+                    move <from> <to> <promotionPiece> - make a move on the board
+                    """;
+        }
+        try {
+            if(params.length >= 2 && params[0].matches("[a-h][1-8]") && params[1].matches("[a-h][1-8]")) {
+                ChessPosition starting = getPositionFromInput(params[0]);
+                ChessPosition ending = getPositionFromInput(params[1]);
+                ChessPiece.PieceType promotion;
+                if(params.length == 3) {
+                    promotion = getPromotionType(params[2]);
+                } else {
+                    promotion = null;
+                }
+                ws.makeMove(authToken, gameID, new ChessMove(starting, ending, promotion));
+            }
+        } catch (Exception e) {
+
+        }
+        return "";
+    }
+
+    private ChessPosition getPositionFromInput(String param) {
+        int firstChar = param.charAt(0) - ('a'+1);
+        int secondChar = Integer.parseInt(String.valueOf(param.charAt(1)));
+        return new ChessPosition(secondChar, firstChar);
+    }
+
+    private ChessPiece.PieceType getPromotionType(String param) {
+        String promotionPiece = param.toUpperCase();
+        switch (promotionPiece) {
+            case "PAWN": return ChessPiece.PieceType.PAWN;
+            case "ROOK": return ChessPiece.PieceType.ROOK;
+            case "KNIGHT": return ChessPiece.PieceType.KNIGHT;
+            case "BISHOP": return ChessPiece.PieceType.BISHOP;
+            case "QUEEN": return ChessPiece.PieceType.QUEEN;
+            case "KING": return ChessPiece.PieceType.KING;
+            default: return null;
+        }
+    }
+
     public String resignGame() {
         ws.resignGame(authToken, gameID);
         return "";
