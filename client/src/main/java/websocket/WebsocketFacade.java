@@ -50,13 +50,6 @@ public class WebsocketFacade extends Endpoint {
                 isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
             }
             PrintBoard.printBoard(loadGameMessage.getGame(), isWhite);
-//            boolean isWhite;
-//            if(loadGameMessage.getPlayerColor() == null) {
-//                this.loadGameMessage = loadGameMessage;
-//            } else {
-//                isWhite = loadGameMessage.getPlayerColor() == ChessGame.TeamColor.WHITE;
-//                PrintBoard.printBoard(loadGameMessage.getGame(), isWhite);
-//            }
         } else if(message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
             NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
             System.out.print(EscapeSequences.ERASE_LINE + '\n');

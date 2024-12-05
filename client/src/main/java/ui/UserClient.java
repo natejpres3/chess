@@ -58,7 +58,7 @@ public class UserClient {
                         case "redraw" -> redrawBoard();
                         case "leave" -> leaveGame();
 //                        case "move" -> makeMove();
-//                        case "resign" -> resignGame();
+                        case "resign" -> resignGame();
 //                        case "highlight" -> highlightMoves();
                         default -> inGameHelp();
                     };
@@ -253,9 +253,10 @@ public class UserClient {
 //
 //    }
 //
-//    public String resignGame() {
-//
-//    }
+    public String resignGame() {
+        ws.resignGame(authToken, gameID);
+        return "";
+    }
 //
 //    public String highlightMoves() {
 //
