@@ -102,11 +102,15 @@ public class WebsocketHandler {
 
             connections.remove(username, gameData.gameID());
             var message = String.format("%s has left the game", username);
-            ServerMessage notificationMessage = new NotificationMessage(websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION, message);
+            ServerMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
             connections.broadcast(username, notificationMessage, false, gameData.gameID());
             session.close();
         } catch(Exception e) {
-
+            AuthData authData = authDAO.getAuthData(command.getAuthToken());
+            var message = String.format("%s has left the game as an observer", authData.username());
+            ServerMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+            connections.broadcast(authData.username(), notificationMessage, false, command.getGameID());
+//            session.close();
         }
     }
 
@@ -151,6 +155,7 @@ public class WebsocketHandler {
             GameData gameData = gameDAO.getGame(command.getGameID());
             ChessGame.TeamColor playerColor = getUsernameColor(authData.username(), gameData);
             ChessGame.TeamColor opponentColor = playerColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+            String opponentUsername = playerColor == ChessGame.TeamColor.WHITE ? gameData.blackUsername() : gameData.whiteUsername();
 
             if(playerColor == null) {
                 var msg = "Error: You are observing, you cannot make a move";
@@ -172,18 +177,23 @@ public class WebsocketHandler {
                 gameDAO.updateGame(gameData.gameID(), gameData);
 
 //                gameData = gameDAO.getGame(gameData.gameID());
+                
+                String firstMessage = String.format("%s just made a move from %s to %s", authData.username(), command.getMove().getStartPosition(), command.getMove().getEndPosition());
+                NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, firstMessage);
+                connections.broadcast(authData.username(), notificationMessage, false, gameData.gameID());
 
-                String msg;
-                if(gameData.game().isInCheck(opponentColor)) {
-                    msg = String.format("%s just put his opponent in check", authData.username());
+                String msg = "";
+                if(gameData.game().isInCheckmate(opponentColor)) {
+                    msg = String.format("%s just put his opponent %s in checkmate, game over", authData.username(), opponentUsername);
                 } else if (gameData.game().isInStalemate(opponentColor)) {
-                    msg = String.format("%s just caused a stalemate", authData.username());
-                } else if (gameData.game().isInCheckmate(opponentColor)) {
-                    msg = String.format("%s just put his opponent in checkmate", authData.username());
-                } else {
-                    msg = String.format("%s just made a move", authData.username());
+                    msg = String.format("%s just caused a stalemate with %s, game over", authData.username(), opponentUsername);
+                } else if (gameData.game().isInCheck(opponentColor)) {
+                    msg = String.format("%s just put his opponent %s in check", authData.username(), opponentUsername);
                 }
-                NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, msg);
+//                } else {
+//                    msg = String.format("%s just made a move from %s to %s", authData.username(), command.getMove().getStartPosition(), command.getMove().getEndPosition());
+//                }
+                notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, msg);
                 connections.broadcast(authData.username(), notificationMessage, false, gameData.gameID());
 
                 LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), playerColor);

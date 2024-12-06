@@ -231,8 +231,10 @@ public class UserClient {
         }
         try {
             if(gameIndex.containsKey(Integer.parseInt(params[0]))) {
+                gameID = gameIndex.get(Integer.parseInt(params[0]));
+                isClientWhite = true;
                 ws = new WebsocketFacade(serverUrl);
-                ws.connectToGame(authToken, Integer.parseInt(params[0]));
+                ws.connectToGame(authToken, gameID);
                 isInGame = true;
                 return String.format("You are observing the game %n");
             } else {
@@ -303,7 +305,17 @@ public class UserClient {
     }
 
     public String resignGame() {
-        ws.resignGame(authToken, gameID);
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Are you sure you want to resign? ");
+            String answer = scanner.nextLine();
+            if(answer.equalsIgnoreCase("yes")) {
+                ws.resignGame(authToken, gameID);
+            }
+        } catch (Exception e) {
+
+        }
+
         return "";
     }
 
