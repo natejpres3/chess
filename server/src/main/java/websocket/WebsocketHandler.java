@@ -106,11 +106,7 @@ public class WebsocketHandler {
             connections.broadcast(username, notificationMessage, false, gameData.gameID());
             session.close();
         } catch(Exception e) {
-            AuthData authData = authDAO.getAuthData(command.getAuthToken());
-            var message = String.format("%s has left the game as an observer", authData.username());
-            ServerMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(authData.username(), notificationMessage, false, command.getGameID());
-//            session.close();
+
         }
     }
 
@@ -194,7 +190,7 @@ public class WebsocketHandler {
 //                    msg = String.format("%s just made a move from %s to %s", authData.username(), command.getMove().getStartPosition(), command.getMove().getEndPosition());
 //                }
                 notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, msg);
-                connections.broadcast(authData.username(), notificationMessage, false, gameData.gameID());
+                connections.broadcast(authData.username(), notificationMessage, true, gameData.gameID());
 
                 LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game(), playerColor);
                 connections.broadcast(authData.username(), loadGameMessage, true, gameData.gameID());
